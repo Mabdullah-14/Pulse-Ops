@@ -1,0 +1,14 @@
+{
+  "name": "Pulse-Ops",
+  "version": "1.0.0",
+  "scripts": {
+    "server": "nodemon backend/app.js",
+    "client": "npm run dev --prefix frontend",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "concurrently": "^8.2.2",
+    "cookie-parser": "^1.4.7"
+  }
+}

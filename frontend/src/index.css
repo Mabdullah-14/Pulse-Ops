@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+  /* --- 1. PulseOps Brand & UI Colors --- */
+  --color-pulse-primary: #4f46e5;      /* Deep Indigo (Main buttons, Active states) */
+  --color-pulse-primary-dark: #4338ca; /* Darker Indigo for hover effects */
+  --color-pulse-accent: #06b6d4;       /* Electric Teal/Cyan (Pulse glow & highlights) */
+
+  /* --- 2. Incident & Task Severity Colors (Zaroori hain) --- */
+  --color-severity-critical: #ef4444;  /* P1 / Critical Error (Red) */
+  --color-severity-high: #f59e0b;      /* P2 / Warning / High (Amber) */
+  --color-severity-medium: #eab308;    /* P3 / Medium (Yellow) */
+  --color-severity-low: #3b82f6;       /* P4 / Low / Info (Blue) */
+  --color-severity-success: #10b981;   /* Resolved / Done (Emerald Green) */
+
+  /* --- 3. Background & Surface Tones --- */
+  --color-pulse-bg: #f8fafc;           /* Soft Slate background for dashboard */
+  --color-pulse-card: #ffffff;         /* Pure white for cards/forms */
+}
