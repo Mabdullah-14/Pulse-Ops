@@ -9,12 +9,12 @@ const createAuditLog = async (logData, tx = db) => {
     return newLog;
 }
 
-const getLogsByOrganization = async (organizationId, limit = 10, cursor = null) => {
+const getLogsByOrganization = async (orgId, limit = 10, cursor = null) => {
 
     if (cursor) {
         return await db.query.auditLogs.findMany({
             where: and(
-                eq(auditLogs.organizationId, organizationId),
+                eq(auditLogs.orgId, orgId),
                 lt(auditLogs.createdAt, new Date(cursor))
             ),
             orderBy: [desc(auditLogs.createdAt)],
@@ -32,7 +32,7 @@ const getLogsByOrganization = async (organizationId, limit = 10, cursor = null) 
     }
 
     return await db.query.auditLogs.findMany({
-        where: eq(auditLogs.organizationId, organizationId),
+        where: eq(auditLogs.orgId, orgId),
         orderBy: [desc(auditLogs.createdAt)],
         limit: limit,
         with: {
@@ -49,10 +49,10 @@ const getLogsByOrganization = async (organizationId, limit = 10, cursor = null) 
 
 };
 
-const getLogsByEntity = async (organizationId, entityType, entityId) => {
+const getLogsByEntity = async (orgId, entityType, entityId) => {
     return await db.query.auditLogs.findMany({
         where: and(
-            eq(auditLogs.organizationId, organizationId),
+            eq(auditLogs.orgId, orgId),
             eq(auditLogs.entityType, entityType),
             eq(auditLogs.entityId, entityId)
         ),

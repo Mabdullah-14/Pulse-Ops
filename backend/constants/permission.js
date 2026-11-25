@@ -30,7 +30,6 @@ const PERMISSIONS = {
     AUDIT_LOG_VIEW: 'audit_log:view',         // View organization audit logs
 };
 
-// Array of all valid permissions (used for Zod validation & UI checkboxes)
 const ALL_PERMISSIONS = Object.values(PERMISSIONS);
 
 // Default system role automatically created when a new organization is initialized

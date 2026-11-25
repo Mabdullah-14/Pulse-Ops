@@ -168,14 +168,7 @@ export default function Navbar({ onMenuClick }) {
                   <User size={15} className="text-gray-400" />
                   My Workspaces
                 </Link>
-                <Link
-                  to="/settings"
-                  onClick={() => setDropdownOpen(false)}
-                  className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-blue-50/70 hover:text-blue-600 transition-colors"
-                >
-                  <Settings size={15} className="text-gray-400" />
-                  Account Settings
-                </Link>
+                
               </div>
 
               <div className="border-t border-gray-100 p-1.5">

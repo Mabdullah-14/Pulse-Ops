@@ -2,9 +2,9 @@ import { API } from './api';
 import { handleApiError } from './auth';
 
 // 1. Add a member to an organization
-export const addMemberToOrg = async ({ orgSlug, userId, role }) => {
+export const addMemberToOrg = async ({ orgSlug, email, role }) => {
     try {
-        const res = await API.post(`/org-members/${orgSlug}/add-member`, { userId, role });
+        const res = await API.post(`/org-members/${orgSlug}/add-member`, { email, role });
         return res.data;
     } catch (error) {
         handleApiError(error);
@@ -52,9 +52,9 @@ export const getMemberdetails = async ({ orgSlug, userId }) => {
 };
 
 // 6. Change role of a member
-export const changeUserRole = async ({ orgSlug, userId, role }) => {
+export const changeUserRole = async ({ orgSlug, email, role }) => {
     try {
-        const res = await API.patch(`/org-members/${orgSlug}/change-role/${userId}`, { role });
+        const res = await API.patch(`/org-members/${orgSlug}/change-role/${email}`, { role });
         return res.data;
     } catch (error) {
         handleApiError(error);

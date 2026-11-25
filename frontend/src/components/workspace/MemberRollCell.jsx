@@ -2,33 +2,34 @@ import React from 'react';
 
 const MemberRoleCell = ({
     member,
+    roles = [],
     canManageTeam,
     isSelf,
     isChangingRole,
     onRoleChange,
 }) => {
-    const roleLower = member.role?.toLowerCase();
-    const isOwner = roleLower === 'owner';
+    const isSystemOwner = member.isSystemRole || member.role?.toLowerCase() === 'owner';
 
-    if (canManageTeam && !isSelf && !isOwner) {
+    if (canManageTeam && !isSelf && !isSystemOwner) {
         return (
             <select
                 disabled={isChangingRole}
-                value={roleLower}
+                value={member.roleId || ''}
                 onChange={(e) => onRoleChange(member.userId, e.target.value)}
-                className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium capitalize text-gray-700 focus:border-blue-500 focus:outline-none"
+                className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium capitalize text-gray-700 focus:border-blue-500 focus:outline-none cursor-pointer"
             >
-                <option value="member">Member</option>
-                <option value="admin">Admin</option>
+                {roles.map((role) => (
+                    <option key={role.id} value={role.id} className="capitalize">
+                        {role.name}
+                    </option>
+                ))}
             </select>
         );
     }
 
-    const badgeStyle = isOwner
+    const badgeStyle = isSystemOwner
         ? 'bg-purple-50 text-purple-700'
-        : roleLower === 'admin'
-            ? 'bg-blue-50 text-blue-700'
-            : 'bg-gray-100 text-gray-700';
+        : 'bg-blue-50 text-blue-700';
 
     return (
         <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold capitalize ${badgeStyle}`}>

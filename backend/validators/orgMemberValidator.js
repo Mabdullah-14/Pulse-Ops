@@ -1,12 +1,12 @@
 const { z } = require('zod');
 
 const addMemberSchema = z.object({
-    userId: z
+    email: z
         .string({
             message: 'User ID is required',
         })
         .trim()
-        .uuid('Invalid User ID format'),
+        .email('Please enter a valid email address'),
     roleId: z
         .string({
             message: 'Role ID is required',

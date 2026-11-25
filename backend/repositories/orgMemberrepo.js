@@ -1,9 +1,17 @@
 const { eq, and } = require('drizzle-orm');
 const { db } = require('../config/db');
+const { user } = require('../database/schema/users');
 const { organizations } = require('../database/schema/organization');
 const { organizationMembers } = require('../database/schema/organization_members');
 
-// Adds a new member with a specific roleId to an organization (supports transactions).
+// Finds a registered user by their email address
+const findUserByEmail = async (email) => {
+  return await db.query.user.findFirst({
+    where: eq(user.email, email.toLowerCase().trim()),
+  });
+};
+
+// Adds a new member with a specific roleId to an organization (supports transactions)
 const addMemberToOrg = async ({ organizationsId, userId, roleId }, tx = db) => {
   const [member] = await tx
     .insert(organizationMembers)
@@ -12,7 +20,7 @@ const addMemberToOrg = async ({ organizationsId, userId, roleId }, tx = db) => {
   return member;
 };
 
-// Fetches all organizations a specific user belongs to along with their role and join date.
+// Fetches all organizations a specific user belongs to along with their role and permissions
 const getUserOrgs = async (userId) => {
   const rows = await db.query.organizationMembers.findMany({
     where: eq(organizationMembers.userId, userId),
@@ -33,7 +41,7 @@ const getUserOrgs = async (userId) => {
   }));
 };
 
-// Checks if a user is a member of an organization using its slug and returns their membership details.
+// Checks if a user is a member of an organization using its slug and returns membership details
 const checkUserInOrgBySlug = async (slug, userId) => {
   const org = await db.query.organizations.findFirst({
     where: eq(organizations.slug, slug),
@@ -60,7 +68,7 @@ const checkUserInOrgBySlug = async (slug, userId) => {
   };
 };
 
-// Retrieves all members of a specific organization with their basic user details and roles.
+// Retrieves all members of a specific organization with their user details and roles
 const getOrgMembers = async (orgId) => {
   const rows = await db.query.organizationMembers.findMany({
     where: eq(organizationMembers.organizationsId, orgId),
@@ -85,7 +93,7 @@ const getOrgMembers = async (orgId) => {
   }));
 };
 
-// Finds a single membership record matching both the organization ID and user ID.
+// Finds a single membership record matching both the organization ID and user ID
 const getSingleMember = async (orgId, userId) => {
   return await db.query.organizationMembers.findFirst({
     where: and(
@@ -98,9 +106,9 @@ const getSingleMember = async (orgId, userId) => {
   });
 };
 
-// Updates the roleId of an existing member within a specific organization.
-const changeRole = async (orgId, userId, newRoleId) => {
-  const [updated] = await db
+// Updates the roleId of an existing member within a specific organization (supports transactions)
+const changeRole = async (orgId, userId, newRoleId, tx = db) => {
+  const [updated] = await tx
     .update(organizationMembers)
     .set({ roleId: newRoleId })
     .where(
@@ -114,6 +122,7 @@ const changeRole = async (orgId, userId, newRoleId) => {
 };
 
 module.exports = {
+  findUserByEmail,
   addMemberToOrg,
   getUserOrgs,
   checkUserInOrgBySlug,

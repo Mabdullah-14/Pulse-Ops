@@ -1,12 +1,20 @@
 import React from 'react';
 import MemberRoleCell from './MemberRollCell';
+import { useGetRoles } from '../../hooks/queries/roles/useGetRoles';
+
 const MembersTable = ({
   members,
+  orgSlug,
   currentUserId,
   canManageTeam,
   isChangingRole,
   onRoleChange,
 }) => {
+  const { data: rolesRes } = useGetRoles({ orgSlug });
+  const allRoles = Array.isArray(rolesRes) ? rolesRes : rolesRes?.roles || rolesRes?.data || [];
+  // System role (owner) ko dropdown se hide rakhein
+  const assignableRoles = allRoles.filter((r) => !r.isSystem);
+
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
       <table className="min-w-full divide-y divide-gray-200">
@@ -36,7 +44,8 @@ const MembersTable = ({
                     </div>
                     <div>
                       <div className="text-sm font-semibold text-gray-900">
-                        {member.name} {isSelf && <span className="text-xs text-gray-400">(You)</span>}
+                        {member.name}{' '}
+                        {isSelf && <span className="text-xs text-gray-400">(You)</span>}
                       </div>
                       <div className="text-xs text-gray-500">{member.email}</div>
                     </div>
@@ -46,6 +55,7 @@ const MembersTable = ({
                 <td className="px-6 py-4">
                   <MemberRoleCell
                     member={member}
+                    roles={assignableRoles}
                     canManageTeam={canManageTeam}
                     isSelf={isSelf}
                     isChangingRole={isChangingRole}

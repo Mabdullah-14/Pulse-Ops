@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
   const handleLogout = async () => {
     // Immediately clear tokens and query cache so route guards navigate cleanly
     setAccessToken(null);
-    localStorage.removeItem("refreshToken");
+    
     queryClient.setQueryData(["profile"], null);
     queryClient.clear();
 

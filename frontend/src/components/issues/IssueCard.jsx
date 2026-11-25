@@ -1,11 +1,25 @@
 import React from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
 import { IssuePriorityBadge } from './IssuePriority';
+import { usePermission } from '../../hooks/usePermission';
+import { useAuth } from '../../../context/AuthContext';
+import { PERMISSIONS } from '../../constants/Permisson';
+
 export const IssueCard = ({ issue, projectKey, onEdit, onDelete }) => {
+    const { hasPermission } = usePermission();
+    const { user } = useAuth();
+
+    const canEditIssue =
+        hasPermission(PERMISSIONS.ISSUE_UPDATE_ANY) ||
+        (hasPermission(PERMISSIONS.ISSUE_UPDATE_OWN) && issue.assigneeId === user?.id);
+
+    const canDeleteIssue = hasPermission(PERMISSIONS.ISSUE_DELETE);
+
     return (
         <div
-            onClick={() => onEdit(issue)}
-            className="bg-white p-3.5 rounded-lg border border-gray-200 shadow-2xs hover:border-blue-400 hover:shadow-sm transition cursor-pointer group"
+            onClick={() => canEditIssue && onEdit(issue)}
+            className={`bg-white p-3.5 rounded-lg border border-gray-200 shadow-2xs hover:border-blue-400 hover:shadow-sm transition group ${canEditIssue ? 'cursor-pointer' : 'cursor-default'
+                }`}
         >
             <div className="flex items-center justify-between gap-2 mb-1.5">
                 <span className="text-[11px] font-semibold text-gray-400 uppercase">
@@ -16,27 +30,33 @@ export const IssueCard = ({ issue, projectKey, onEdit, onDelete }) => {
                     <IssuePriorityBadge priority={issue.priority} />
 
                     {/* Hover par Edit/Delete icons */}
-                    <div
-                        onClick={(e) => e.stopPropagation()}
-                        className="hidden group-hover:flex items-center gap-0.5 ml-1"
-                    >
-                        <button
-                            type="button"
-                            onClick={() => onEdit(issue)}
-                            title="Edit Issue"
-                            className="p-1 text-gray-400 hover:text-blue-600 rounded transition cursor-pointer"
+                    {(canEditIssue || canDeleteIssue) && (
+                        <div
+                            onClick={(e) => e.stopPropagation()}
+                            className="hidden group-hover:flex items-center gap-0.5 ml-1"
                         >
-                            <Pencil size={13} />
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => onDelete(issue)}
-                            title="Delete Issue"
-                            className="p-1 text-gray-400 hover:text-red-600 rounded transition cursor-pointer"
-                        >
-                            <Trash2 size={13} />
-                        </button>
-                    </div>
+                            {canEditIssue && (
+                                <button
+                                    type="button"
+                                    onClick={() => onEdit(issue)}
+                                    title="Edit Issue"
+                                    className="p-1 text-gray-400 hover:text-blue-600 rounded transition cursor-pointer"
+                                >
+                                    <Pencil size={13} />
+                                </button>
+                            )}
+                            {canDeleteIssue && (
+                                <button
+                                    type="button"
+                                    onClick={() => onDelete(issue)}
+                                    title="Delete Issue"
+                                    className="p-1 text-gray-400 hover:text-red-600 rounded transition cursor-pointer"
+                                >
+                                    <Trash2 size={13} />
+                                </button>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
 

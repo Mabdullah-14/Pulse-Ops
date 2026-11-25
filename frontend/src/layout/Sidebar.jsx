@@ -18,7 +18,7 @@ export default function Sidebar({ open, onClose }) {
   const basePath = orgSlug ? `/orgs/${orgSlug}` : "";
 
   const mainLinks = [
-    { to: "/home", label: "Home", icon: Home, exact: true },
+    { to: "/home", label: "Home", icon: Home },
     { to: `${basePath}/projects`, label: "Projects", icon: FolderKanban },
     { to: `${basePath}/board`, label: "Board", icon: KanbanSquare },
     { to: `${basePath}/issues`, label: "All Issues", icon: ListChecks },
@@ -26,7 +26,7 @@ export default function Sidebar({ open, onClose }) {
 
   const managementLinks = [
     { to: `${basePath}/members`, label: "Members", icon: Users },
-    { to: `${basePath}/audit-logs`, label: "Audit Logs", icon: History },
+    { to: 'get-audit-logs', label: "Audit Logs", icon: History },
   ];
 
   useEffect(() => {
@@ -46,10 +46,9 @@ export default function Sidebar({ open, onClose }) {
       end={exact}
       onClick={onClose}
       className={({ isActive }) =>
-        `group relative flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150 ${
-          isActive
-            ? "bg-blue-600 text-white shadow-sm shadow-blue-600/20"
-            : "text-gray-600 hover:bg-blue-50/70 hover:text-blue-600"
+        `group relative flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150 ${isActive
+          ? "bg-blue-600 text-white shadow-sm shadow-blue-600/20"
+          : "text-gray-600 hover:bg-blue-50/70 hover:text-blue-600"
         }`
       }
     >
@@ -58,11 +57,10 @@ export default function Sidebar({ open, onClose }) {
           <div className="flex items-center gap-3">
             <Icon
               size={17}
-              className={`transition-transform duration-150 ${
-                isActive
-                  ? "text-white"
-                  : "text-gray-400 group-hover:text-blue-600 group-hover:scale-105"
-              }`}
+              className={`transition-transform duration-150 ${isActive
+                ? "text-white"
+                : "text-gray-400 group-hover:text-blue-600 group-hover:scale-105"
+                }`}
             />
             <span>{label}</span>
           </div>
@@ -88,9 +86,8 @@ export default function Sidebar({ open, onClose }) {
 
       {/* Sidebar container */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-gray-200/80 bg-white/95 backdrop-blur-xl transition-transform duration-300 ease-in-out lg:sticky lg:top-15 lg:z-0 lg:h-[calc(100vh-3.75rem)] lg:w-60 lg:translate-x-0 ${
-          open ? "translate-x-0 shadow-2xl lg:shadow-none" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-gray-200/80 bg-white/95 backdrop-blur-xl transition-transform duration-300 ease-in-out lg:sticky lg:top-15 lg:z-0 lg:h-[calc(100vh-3.75rem)] lg:w-60 lg:translate-x-0 ${open ? "translate-x-0 shadow-2xl lg:shadow-none" : "-translate-x-full"
+          }`}
       >
         {/* Mobile Header */}
         <div className="flex h-15 items-center justify-between border-b border-gray-100 px-4 lg:hidden">
@@ -154,10 +151,9 @@ export default function Sidebar({ open, onClose }) {
             to={`${basePath}/settings`}
             onClick={onClose}
             className={({ isActive }) =>
-              `group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150 ${
-                isActive
-                  ? "bg-blue-600 text-white shadow-sm shadow-blue-600/20"
-                  : "text-gray-600 hover:bg-blue-50/70 hover:text-blue-600"
+              `group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150 ${isActive
+                ? "bg-blue-600 text-white shadow-sm shadow-blue-600/20"
+                : "text-gray-600 hover:bg-blue-50/70 hover:text-blue-600"
               }`
             }
           >
@@ -165,11 +161,10 @@ export default function Sidebar({ open, onClose }) {
               <>
                 <Settings
                   size={17}
-                  className={`transition-transform duration-200 ${
-                    isActive
-                      ? "text-white"
-                      : "text-gray-400 group-hover:text-blue-600 group-hover:rotate-45"
-                  }`}
+                  className={`transition-transform duration-200 ${isActive
+                    ? "text-white"
+                    : "text-gray-400 group-hover:text-blue-600 group-hover:rotate-45"
+                    }`}
                 />
                 <span>Settings</span>
               </>

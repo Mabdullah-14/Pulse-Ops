@@ -6,6 +6,6 @@ export const useGetIssueById = ({ orgSlug, projectId, issueId }) => {
         queryKey: ['issues', orgSlug, projectId, issueId],
         queryFn: () => getIssueById({ orgSlug, projectId, issueId }),
         enabled: !!orgSlug && !!projectId && !!issueId,
-       
+
     });
 };

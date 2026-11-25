@@ -9,6 +9,7 @@ import WorkspaceLayout from './pages/workspace/workSpaceLayout';
 import TeamMember from './pages/workspace/teammember';
 import { ProjectsPage } from './pages/projects/ProjectPage';
 import { ProjectBoardPage } from './pages/statuses/ProjectBoardPage';
+import { RolesPage } from './pages/role/RolesPage';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
             <Route path="projects" element={<ProjectsPage />} />
             <Route path="projects/:projectId" element={<ProjectBoardPage />} />
             <Route path="members" element={<TeamMember />} />
+            <Route path="roles" element={<RolesPage/>}/>
           </Route>
 
 

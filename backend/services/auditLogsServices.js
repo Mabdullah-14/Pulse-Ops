@@ -1,13 +1,13 @@
-const auditLogRepository = require('../repositories/auditLogsRepo');
-
+const { db } = require('../config/db')
+const auditLogRepository = require('../repositories/auditLogsRepo')
 
 const logActivity = async (
-    { organizationId, userId, action, entityType, entityId, metadata = {} },
+    { orgId, userId, action, entityType, entityId, metadata = {} },
     tx = db
 ) => {
     return await auditLogRepository.createAuditLog(
         {
-            organizationId,
+            orgId,
             userId,
             action,
             entityType,
@@ -15,27 +15,27 @@ const logActivity = async (
             metadata,
         },
         tx
-    );
-};
+    )
+}
 
-const getOrganizationLogs = async (organizationId,limit=10,cursor=null) => {
-    const logs=  await auditLogRepository.getLogsByOrganization(organizationId);
+const getOrganizationLogs = async (orgId, limit = 10, cursor = null) => {
+    const logs = await auditLogRepository.getLogsByOrganization(orgId, limit, cursor)
 
-    const lastLog=logs[logs.length-1]
-    const nextCursor=logs.length === limit && lastLog ? lastLog.createdAt : null
+    const lastLog = logs[logs.length - 1]
+    const nextCursor = logs.length === limit && lastLog ? lastLog.createdAt : null
 
     return {
         logs,
-        nextCursor
+        nextCursor,
     }
-};
+}
 
-const getEntityLogs = async (organizationId, entityType, entityId) => {
-    return await auditLogRepository.getLogsByEntity(organizationId, entityType, entityId);
-};
+const getEntityLogs = async (orgId, entityType, entityId) => {
+    return await auditLogRepository.getLogsByEntity(orgId, entityType, entityId)
+}
 
 module.exports = {
     logActivity,
     getOrganizationLogs,
     getEntityLogs,
-};
+}

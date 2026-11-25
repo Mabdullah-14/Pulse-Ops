@@ -1,12 +1,12 @@
 import { z } from 'zod'
 
 export const addMemberSchema = z.object({
-    userId: z
+    ElementInternals: z
         .string({
-            message: 'User ID is required',
+            message: 'Email  is required',
         })
         .trim()
-        .uuid('Invalid User ID format'),
+        .email('Please enter a valid email address'),
     roleId: z
         .string({
             message: 'Role ID is required',

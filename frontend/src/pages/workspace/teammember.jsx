@@ -1,14 +1,17 @@
-import React, { useState } from 'react'
-import { useParams, useOutletContext } from 'react-router-dom'
-import { useAuth } from '../../../context/AuthContext'
-import { useChangeRole } from '../../hooks/mutations/organization/useChangeRole'
-import { useOrganizationMembers } from '../../hooks/queries/orgMembers/useOrganizationMembers'
-import AddMemberModal from '../../components/workspace/AddMemberModal'
-import MembersTable from '../../components/workspace/MemberTable'
+import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
+import { usePermission } from '../../hooks/usePermission';
+import { PERMISSIONS } from '../../constants/Permisson';
+import { useChangeRole } from '../../hooks/mutations/organization/useChangeRole';
+import { useOrganizationMembers } from '../../hooks/queries/orgMembers/useOrganizationMembers';
+import AddMemberModal from '../../components/workspace/AddMemberModal';
+import MembersTable from '../../components/workspace/MemberTable';
+
 const TeamMember = () => {
   const { orgSlug } = useParams();
-  const {user:currentUser}=useAuth()
-  const { membership } = useOutletContext()
+  const { user: currentUser } = useAuth();
+  const { hasPermission, membership } = usePermission();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
@@ -17,22 +20,27 @@ const TeamMember = () => {
   const { mutate: changeRole, isPending: isChangingRole } = useChangeRole();
 
   const members = data?.data || [];
-  const currentUserRole = membership?.role?.toLowerCase();
-  const canManageTeam = currentUserRole === 'owner' || currentUserRole === 'admin';
+
+  // PBAC Permission Checks
+  const canAddMember = hasPermission(PERMISSIONS.MEMBER_ADD);
+  const canUpdateRole = hasPermission(PERMISSIONS.MEMBER_UPDATE_ROLE);
 
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(''), 3000);
   };
-  const handleRoleChange = (targetUserId, newRole) => {
+
+  // Ab role string ke bajaye dynamic 'roleId' (UUID) bhejenge
+  const handleRoleChange = (targetUserId, newRoleId) => {
     changeRole(
-      { orgSlug, userId: targetUserId, role: newRole },
+      { orgSlug, userId: targetUserId, roleId: newRoleId },
       {
         onSuccess: () => showToast('Role updated successfully!'),
-        onError: (err) => alert(err.message || 'Failed to update role'),
+        onError: (err) => alert(err?.response?.data?.message || err.message || 'Failed to update role'),
       }
     );
   };
+
   return (
     <div className="mx-auto max-w-5xl">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -43,10 +51,10 @@ const TeamMember = () => {
           </p>
         </div>
 
-        {canManageTeam && (
+        {canAddMember && (
           <button
             onClick={() => setIsModalOpen(true)}
-            className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+            className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 cursor-pointer"
           >
             + Add Member
           </button>
@@ -69,8 +77,9 @@ const TeamMember = () => {
       {!isLoading && !isError && (
         <MembersTable
           members={members}
+          orgSlug={orgSlug}
           currentUserId={currentUser?.id}
-          canManageTeam={canManageTeam}
+          canManageTeam={canUpdateRole}
           isChangingRole={isChangingRole}
           onRoleChange={handleRoleChange}
         />
@@ -84,6 +93,6 @@ const TeamMember = () => {
       />
     </div>
   );
-}
+};
 
-export default TeamMember
+export default TeamMember;

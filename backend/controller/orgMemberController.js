@@ -7,24 +7,18 @@ const {
     changeRole,
 } = require('../services/orgMemberServices');
 
-// 1. Add a member to organization 
+// 1. Add a member to an organization by email
 const handleAddMember = async (req, res) => {
     try {
         const { orgId } = req.tenant;
-        const { userId, role } = req.body;
-
-        const existingMember = await getMemberdetails(orgId, userId);
-        if (existingMember) {
-            return res.status(400).json({
-                success: false,
-                message: 'User is already a member of this organization',
-            });
-        }
+        const { email, roleId } = req.body;
+        const actorId = req.user?.id;
 
         const newMember = await addMember({
             organizationsId: orgId,
-            userId,
-            role: role || 'member',
+            email,
+            roleId,
+            actorId,
         });
 
         return res.status(201).json({
@@ -33,7 +27,7 @@ const handleAddMember = async (req, res) => {
             data: newMember,
         });
     } catch (error) {
-        return res.status(500).json({
+        return res.status(error.statusCode || 500).json({
             success: false,
             message: error.message,
         });
@@ -84,7 +78,7 @@ const handleVerifyMembershipBySlug = async (req, res) => {
     }
 };
 
-// 4. List all organization members 
+// 4. List all organization members
 const handleOrganizationMembers = async (req, res) => {
     try {
         const { orgId } = req.tenant;
@@ -102,7 +96,7 @@ const handleOrganizationMembers = async (req, res) => {
     }
 };
 
-// 5. Get single member details 
+// 5. Get single member details
 const handleGetMembersDetails = async (req, res) => {
     try {
         const { orgId } = req.tenant;
@@ -128,30 +122,22 @@ const handleGetMembersDetails = async (req, res) => {
     }
 };
 
-// 6. Change role of a member 
+// 6. Change role of an existing member
 const handleChangeRole = async (req, res) => {
     try {
         const { orgId } = req.tenant;
         const { userId: targetUserId } = req.params;
-        const { role: newRole } = req.body;
-        const requesterId = req.user?.id;
+        const { roleId } = req.body;
+        const actorId = req.user?.id;
 
-        const targetMember = await getMemberdetails(orgId, targetUserId);
-        if (!targetMember) {
-            return res.status(404).json({
-                success: false,
-                message: 'Member not found in this organization',
-            });
-        }
-
-        if (targetUserId === requesterId) {
+        if (targetUserId === actorId) {
             return res.status(400).json({
                 success: false,
                 message: 'You cannot change your own role',
             });
         }
 
-        const updatedMember = await changeRole(orgId, targetUserId, newRole);
+        const updatedMember = await changeRole(orgId, targetUserId, roleId, actorId);
 
         return res.status(200).json({
             success: true,
@@ -159,7 +145,7 @@ const handleChangeRole = async (req, res) => {
             data: updatedMember,
         });
     } catch (error) {
-        return res.status(500).json({
+        return res.status(error.statusCode || 500).json({
             success: false,
             message: error.message,
         });
