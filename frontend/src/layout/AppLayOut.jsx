@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar";
-import Sidebar from "./sidebar";
+import Sidebar from "./Sidebar";
 import Footer from "./Footer";
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);

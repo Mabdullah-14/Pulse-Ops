@@ -18,7 +18,7 @@ export const ProjectBoardPage = () => {
 
     const { data: projectRes, isLoading: isProjectLoading } = useGetProjectById({ orgSlug, projectId });
     const { data: statusRes, isLoading: isStatusLoading, isError } = useGetStatuses({ orgSlug, projectId });
-    const { data: issuesRes } = useGetIssues({ orgSlug, projectId });
+    const { data: issuesRes, fetchNextPage, hasNextPage, isFetchingNextPage, } = useGetIssues({ orgSlug, projectId });
 
     // Status Modals States
     const [isCreateStatusOpen, setIsCreateStatusOpen] = useState(false);
@@ -32,7 +32,7 @@ export const ProjectBoardPage = () => {
 
     const project = projectRes?.project || projectRes?.data || projectRes;
     const statuses = Array.isArray(statusRes) ? statusRes : statusRes?.statuses || statusRes?.data || [];
-    const issues = Array.isArray(issuesRes) ? issuesRes : issuesRes?.issues || issuesRes?.data || [];
+    const issues = issuesRes?.pages?.flatMap((page) => page?.data || []) || [];
 
     if (isProjectLoading || isStatusLoading) {
         return <div className="p-8 text-center text-gray-500">Loading board...</div>;
@@ -55,16 +55,30 @@ export const ProjectBoardPage = () => {
                     onOpenCreate={() => setIsCreateStatusOpen(true)}
                 />
             ) : (
-                <StatusColumnList
-                    statuses={statuses}
-                    issues={issues}
-                    projectKey={project?.key}
-                    onEditStatus={(status) => setEditingStatus(status)}
-                    onDeleteStatus={(status) => setDeletingStatus(status)}
-                    onOpenCreateIssue={(statusId) => setCreateIssueStatusId(statusId)}
-                    onEditIssue={(issue) => setEditingIssue(issue)}
-                    onDeleteIssue={(issue) => setDeletingIssue(issue)}
-                />
+                <>
+                    <StatusColumnList
+                        statuses={statuses}
+                        issues={issues}
+                        projectKey={project?.key}
+                        onEditStatus={(status) => setEditingStatus(status)}
+                        onDeleteStatus={(status) => setDeletingStatus(status)}
+                        onOpenCreateIssue={(statusId) => setCreateIssueStatusId(statusId)}
+                        onEditIssue={(issue) => setEditingIssue(issue)}
+                        onDeleteIssue={(issue) => setDeletingIssue(issue)}
+                    />
+
+                    {hasNextPage && (
+                        <div className="mt-4 flex justify-center">
+                            <button
+                                onClick={() => fetchNextPage()}
+                                disabled={isFetchingNextPage}
+                                className="rounded-lg border border-gray-300 bg-white px-5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 cursor-pointer"
+                            >
+                                {isFetchingNextPage ? 'Loading more...' : 'Load More Issues'}
+                            </button>
+                        </div>
+                    )}
+                </>
             )}
 
             {/* Status Modals */}

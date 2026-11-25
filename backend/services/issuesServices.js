@@ -5,7 +5,6 @@ const statusRepo = require('../repositories/statusRepo');
 const { logActivity } = require('./auditLogsServices');
 const { AUDIT_ACTIONS, ENTITY_TYPES } = require('../constants/auditAction');
 
-
 const validateProjectAndStatus = async (organizationId, projectId, statusId = null) => {
   const project = await projectRepo.getProjectById(organizationId, projectId);
   if (!project) {
@@ -30,7 +29,6 @@ const createIssue = async (organizationId, userId, projectId, data) => {
   await validateProjectAndStatus(organizationId, projectId, data.statusId);
 
   return await db.transaction(async (tx) => {
-
     const lastIssue = await issueRepo.getLastIssueInProject(projectId, tx);
     const nextIssueNumber = lastIssue ? lastIssue.issueNumber + 1 : 1;
 
@@ -53,7 +51,7 @@ const createIssue = async (organizationId, userId, projectId, data) => {
 
     await logActivity(
       {
-        organizationId,
+        orgId: organizationId,
         userId,
         action: AUDIT_ACTIONS.ISSUE_CREATED,
         entityType: ENTITY_TYPES.ISSUE,
@@ -71,15 +69,14 @@ const createIssue = async (organizationId, userId, projectId, data) => {
   });
 };
 
-// 2. Get All Issues of a Project 
-const getProjectIssues = async (organizationId, projectId,filters={}, limit = 10, cursor = null) => {
-
+// 2. Get All Issues of a Project
+const getProjectIssues = async (organizationId, projectId, filters = {}, limit = 10, cursor = null) => {
   await validateProjectAndStatus(organizationId, projectId);
 
-  const issues = await issueRepo.getIssuesByProject(projectId,filters,limit, cursor)
+  const issues = await issueRepo.getIssuesByProject(projectId, filters, limit, cursor);
 
-  const lastIssue = issues[issues.length - 1]
-  let nextCursor = null
+  const lastIssue = issues[issues.length - 1];
+  let nextCursor = null;
 
   if (issues.length === limit && lastIssue) {
     nextCursor = lastIssue.createdAt;
@@ -87,14 +84,11 @@ const getProjectIssues = async (organizationId, projectId,filters={}, limit = 10
 
   return {
     issues,
-    nextCursor
-  }
-
-
-
+    nextCursor,
+  };
 };
 
-// 3. Get Single Issue by ID 
+// 3. Get Single Issue by ID
 const getSingleIssue = async (organizationId, projectId, issueId) => {
   await validateProjectAndStatus(organizationId, projectId);
   const issue = await issueRepo.getIssueById(projectId, issueId);
@@ -106,10 +100,9 @@ const getSingleIssue = async (organizationId, projectId, issueId) => {
   return issue;
 };
 
-// 4. Update Issue 
+// 4. Update Issue
 const updateIssue = async (organizationId, userId, projectId, issueId, clientVersion, data) => {
   await validateProjectAndStatus(organizationId, projectId, data.statusId);
-
 
   const existingIssue = await issueRepo.getIssueById(projectId, issueId);
   if (!existingIssue) {
@@ -136,7 +129,7 @@ const updateIssue = async (organizationId, userId, projectId, issueId, clientVer
 
     await logActivity(
       {
-        organizationId,
+        orgId: organizationId,
         userId,
         action: AUDIT_ACTIONS.ISSUE_UPDATED,
         entityType: ENTITY_TYPES.ISSUE,
@@ -153,7 +146,7 @@ const updateIssue = async (organizationId, userId, projectId, issueId, clientVer
   });
 };
 
-
+// 5. Delete Issue
 const deleteIssue = async (organizationId, userId, projectId, issueId) => {
   await validateProjectAndStatus(organizationId, projectId);
 
@@ -169,7 +162,7 @@ const deleteIssue = async (organizationId, userId, projectId, issueId) => {
 
     await logActivity(
       {
-        organizationId,
+        orgId: organizationId,
         userId,
         action: AUDIT_ACTIONS.ISSUE_DELETED,
         entityType: ENTITY_TYPES.ISSUE,

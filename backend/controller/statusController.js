@@ -3,15 +3,17 @@ const statusService = require('../services/statusService');
 const createStatus = async (req, res) => {
   try {
     const organizationId = req.tenant.orgId;
+    const userId = req.user.id;
     const { projectId } = req.params;
 
-    const status = await statusService.createStatus(organizationId, projectId, req.body);
+    const status = await statusService.createStatus(organizationId, userId, projectId, req.body);
 
     return res.status(201).json({
       success: true,
       data: status,
     });
   } catch (err) {
+    console.log('Status error:', err);
     if (err.message === 'PROJECT_NOT_FOUND') {
       return res.status(404).json({ success: false, message: 'Project not found' });
     }
@@ -41,10 +43,12 @@ const getStatuses = async (req, res) => {
 const updateStatus = async (req, res) => {
   try {
     const organizationId = req.tenant.orgId;
+    const userId = req.user.id;
     const { projectId, statusId } = req.params;
 
     const updated = await statusService.updateStatus(
       organizationId,
+      userId,
       projectId,
       statusId,
       req.body
@@ -55,6 +59,7 @@ const updateStatus = async (req, res) => {
       data: updated,
     });
   } catch (err) {
+    console.log('Update status error:', err);
     if (err.message === 'PROJECT_NOT_FOUND') {
       return res.status(404).json({ success: false, message: 'Project not found' });
     }
@@ -68,15 +73,17 @@ const updateStatus = async (req, res) => {
 const deleteStatus = async (req, res) => {
   try {
     const organizationId = req.tenant.orgId;
+    const userId = req.user.id;
     const { projectId, statusId } = req.params;
 
-    await statusService.deleteStatus(organizationId, projectId, statusId);
+    await statusService.deleteStatus(organizationId, userId, projectId, statusId);
 
     return res.status(200).json({
       success: true,
       message: 'Column deleted successfully',
     });
   } catch (err) {
+    console.log('Delete status error:', err);
     if (err.message === 'PROJECT_NOT_FOUND') {
       return res.status(404).json({ success: false, message: 'Project not found' });
     }

@@ -1,17 +1,19 @@
-import { z } from 'zod'
+import { z } from 'zod';
 
 export const addMemberSchema = z.object({
-    ElementInternals: z
+    email: z
         .string({
-            message: 'Email  is required',
+            message: 'Email is required',
         })
         .trim()
+        .min(1, 'Email is required')
         .email('Please enter a valid email address'),
     roleId: z
         .string({
             message: 'Role ID is required',
         })
         .trim()
+        .min(1, 'Please select a role')
         .uuid('Invalid Role ID format'),
 });
 
@@ -23,4 +25,3 @@ export const changeRoleSchema = z.object({
         .trim()
         .uuid('Invalid Role ID format'),
 });
-

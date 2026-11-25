@@ -1,20 +1,18 @@
-const { eq, and, count } = require('drizzle-orm')
-const { db } = require('../config/db')
-const { organizationRoles } = require('../database/schema/orgnization_roles')
-const { organizationMembers } = require('../database/schema/organization_members')
+const { eq, and, count } = require('drizzle-orm');
+const { db } = require('../config/db');
+const { organizationRoles } = require('../database/schema/orgnization_roles');
+const { organizationMembers } = require('../database/schema/organization_members');
 
-
-//create a role in organization 
+// create a role in organization 
 const createRole = async ({ organizationsId, name, permissions = [], isSystem = false }, tx = db) => {
     const [newRole] = await tx
         .insert(organizationRoles)
         .values({ organizationsId, name, permissions, isSystem })
         .returning();
     return newRole;
-}
+};
 
-
-//get roles by organiations
+// get roles by organization
 const getRolesByOrg = async (orgId) => {
     return await db.query.organizationRoles.findMany({
         where: eq(organizationRoles.organizationsId, orgId),
@@ -26,8 +24,7 @@ const getRolesByOrg = async (orgId) => {
     });
 };
 
-//get a role by id 
-
+// get a role by id 
 const getRoleById = async (roleId, orgId) => {
     return await db.query.organizationRoles.findFirst({
         where: and(
@@ -37,10 +34,9 @@ const getRoleById = async (roleId, orgId) => {
     });
 };
 
-
-//update a role id
-const updateRole = async (roleId, orgId, updateData) => {
-    const [updatedRole] = await db
+// update a role
+const updateRole = async (roleId, orgId, updateData, tx = db) => {
+    const [updatedRole] = await tx
         .update(organizationRoles)
         .set(updateData)
         .where(
@@ -53,10 +49,9 @@ const updateRole = async (roleId, orgId, updateData) => {
     return updatedRole || null;
 };
 
-
-//delete a role
-const deleteRole = async (roleId, orgId) => {
-    const [deletedRole] = await db
+// delete a role
+const deleteRole = async (roleId, orgId, tx = db) => {
+    const [deletedRole] = await tx
         .delete(organizationRoles)
         .where(
             and(
@@ -68,8 +63,7 @@ const deleteRole = async (roleId, orgId) => {
     return deletedRole || null;
 };
 
-
-// total roles in an organizaton
+// total members with a role in an organization
 const countMembersWithRole = async (roleId) => {
     const [result] = await db
         .select({ value: count() })

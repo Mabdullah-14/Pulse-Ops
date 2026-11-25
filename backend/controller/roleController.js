@@ -23,10 +23,12 @@ const getRoles = async (req, res) => {
 const createRole = async (req, res) => {
   try {
     const { orgId } = req.tenant;
+    const userId = req.user?.id;
     const { name, permissions } = req.body;
 
     const role = await createCustomRole({
       orgId,
+      userId,
       name,
       permissions: permissions || [],
     });
@@ -37,7 +39,6 @@ const createRole = async (req, res) => {
       role,
     });
   } catch (error) {
-    // Handle duplicate role name inside the same organization
     if (error.code === '23505') {
       return res.status(409).json({
         success: false,
@@ -56,11 +57,13 @@ const createRole = async (req, res) => {
 const updateRole = async (req, res) => {
   try {
     const { orgId } = req.tenant;
+    const userId = req.user?.id;
     const { roleId } = req.params;
     const { name, permissions } = req.body;
 
     const updatedRole = await updateCustomRole({
       orgId,
+      userId,
       roleId,
       name,
       permissions,
@@ -72,7 +75,6 @@ const updateRole = async (req, res) => {
       role: updatedRole,
     });
   } catch (error) {
-    // Handle duplicate role name inside the same organization
     if (error.code === '23505') {
       return res.status(409).json({
         success: false,
@@ -91,9 +93,10 @@ const updateRole = async (req, res) => {
 const deleteRole = async (req, res) => {
   try {
     const { orgId } = req.tenant;
+    const userId = req.user?.id;
     const { roleId } = req.params;
 
-    await deleteCustomRole({ orgId, roleId });
+    await deleteCustomRole({ orgId, userId, roleId });
 
     return res.status(200).json({
       success: true,

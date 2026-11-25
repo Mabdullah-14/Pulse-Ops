@@ -1,4 +1,4 @@
-const { eq, and, desc, asc, isNull } = require('drizzle-orm');
+const { eq, and, desc, asc, isNull, or, ilike, lt } = require('drizzle-orm');
 const { db } = require('../config/db');
 const { issues } = require('../database/schema/issues');
 
@@ -21,14 +21,13 @@ const getIssuesByStatus = async (statusId) => {
 
 // 3. Project issues
 const getIssuesByProject = async (projectId, filters = {}, limit = 10, cursor = null) => {
-
   const conditions = [
     eq(issues.projectId, projectId),
-    isNull(issues.deletedAt)
-  ]
+    isNull(issues.deletedAt),
+  ];
 
   if (filters.statusId) {
-    conditions.push(eq(issues.statusId), filters.statusId)
+    conditions.push(eq(issues.statusId, filters.statusId));
   }
 
   if (filters.priority) {
@@ -45,23 +44,19 @@ const getIssuesByProject = async (projectId, filters = {}, limit = 10, cursor = 
         ilike(issues.title, `%${filters.search}%`),
         ilike(issues.description, `%${filters.search}%`)
       )
-    )
+    );
   }
 
   if (cursor) {
     conditions.push(lt(issues.createdAt, new Date(cursor)));
   }
 
-
   return await db.query.issues.findMany({
     where: and(...conditions),
     orderBy: [desc(issues.createdAt)],
     limit: limit,
   });
-
-
 };
-
 
 // 4. Single active issue by ID
 const getIssueById = async (projectId, issueId) => {
@@ -74,7 +69,7 @@ const getIssueById = async (projectId, issueId) => {
   });
 };
 
-// 5. Issue create 
+// 5. Issue create
 const createIssue = async (data, tx = db) => {
   const [newIssue] = await tx.insert(issues).values(data).returning();
   return newIssue;

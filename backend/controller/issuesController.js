@@ -3,23 +3,26 @@ const issueService = require('../services/issuesServices');
 const createIssue = async (req, res) => {
     try {
         const organizationId = req.tenant.orgId;
+        const userId = req.user.id;
         const { projectId } = req.params;
 
-        const issue = await issueService.createIssue(organizationId, projectId, req.body);
+        const issue = await issueService.createIssue(
+            organizationId,
+            userId,
+            projectId,
+            req.body
+        );
 
         return res.status(201).json({
             success: true,
             data: issue,
         });
     } catch (err) {
-          console.error('CREATE ISSUE ERROR:', err);
-        if (err.message === 'PROJECT_NOT_FOUND') {
-            return res.status(404).json({ success: false, message: 'Project not found' });
-        }
-        if (err.message === 'STATUS_NOT_FOUND') {
-            return res.status(404).json({ success: false, message: 'Status column not found' });
-        }
-        return res.status(500).json({ success: false, message: 'Internal server error' });
+        console.error('CREATE ISSUE ERROR:', err);
+        return res.status(err.statusCode || 500).json({
+            success: false,
+            message: err.message || 'Internal server error',
+        });
     }
 };
 
@@ -28,31 +31,38 @@ const getIssues = async (req, res) => {
         const organizationId = req.tenant.orgId;
         const { projectId } = req.params;
 
-
-        const filters ={
-             statusId: req.query.statusId || null,
+        const filters = {
+            statusId: req.query.statusId || null,
             priority: req.query.priority || null,
             assigneeId: req.query.assigneeId || null,
             search: req.query.search ? req.query.search.trim() : null,
-        }
+        };
 
-        const limit =parseInt(req.query.limit,10) || 10
-        const cursor=req.query.cursor || null
+        const limit = parseInt(req.query.limit, 10) || 10;
+        const cursor = req.query.cursor || null;
 
-        const issues = await issueService.getIssues(organizationId, projectId,limit,cursor);
-
-        return res.status(200).json({
-            success: true,
-            data: issues,
+        const result = await issueService.getProjectIssues(
+            organizationId,
+            projectId,
             filters,
             limit,
             cursor
+        );
+
+        return res.status(200).json({
+            success: true,
+            data: result.issues,
+            nextCursor: result.nextCursor,
+            filters,
+            limit,
+            cursor,
         });
     } catch (err) {
-        if (err.message === 'PROJECT_NOT_FOUND') {
-            return res.status(404).json({ success: false, message: 'Project not found' });
-        }
-        return res.status(500).json({ success: false, message: 'Internal server error' });
+        console.error('GET ISSUES ERROR:', err);
+        return res.status(err.statusCode || 500).json({
+            success: false,
+            message: err.message || 'Internal server error',
+        });
     }
 };
 
@@ -61,33 +71,39 @@ const getIssueById = async (req, res) => {
         const organizationId = req.tenant.orgId;
         const { projectId, issueId } = req.params;
 
-        const issue = await issueService.getIssueById(organizationId, projectId, issueId);
+        const issue = await issueService.getSingleIssue(
+            organizationId,
+            projectId,
+            issueId
+        );
 
         return res.status(200).json({
             success: true,
             data: issue,
         });
     } catch (err) {
-        if (err.message === 'PROJECT_NOT_FOUND') {
-            return res.status(404).json({ success: false, message: 'Project not found' });
-        }
-        if (err.message === 'ISSUE_NOT_FOUND') {
-            return res.status(404).json({ success: false, message: 'Issue not found' });
-        }
-        return res.status(500).json({ success: false, message: 'Internal server error' });
+        console.error('GET ISSUE BY ID ERROR:', err);
+        return res.status(err.statusCode || 500).json({
+            success: false,
+            message: err.message || 'Internal server error',
+        });
     }
 };
 
 const updateIssue = async (req, res) => {
     try {
         const organizationId = req.tenant.orgId;
+        const userId = req.user.id;
         const { projectId, issueId } = req.params;
+        const { version, ...updateData } = req.body;
 
         const updated = await issueService.updateIssue(
             organizationId,
+            userId,
             projectId,
             issueId,
-            req.body
+            version,
+            updateData
         );
 
         return res.status(200).json({
@@ -95,45 +111,44 @@ const updateIssue = async (req, res) => {
             data: updated,
         });
     } catch (err) {
-        if (err.message === 'PROJECT_NOT_FOUND') {
-            return res.status(404).json({ success: false, message: 'Project not found' });
-        }
-        if (err.message === 'STATUS_NOT_FOUND') {
-            return res.status(404).json({ success: false, message: 'Status column not found' });
-        }
-        if (err.message === 'ISSUE_NOT_FOUND') {
-            return res.status(404).json({ success: false, message: 'Issue not found' });
-        }
-        if (err.message === 'VERSION_CONFLICT') {
+        console.error('UPDATE ISSUE ERROR:', err);
+        if (err.statusCode === 409) {
             return res.status(409).json({
                 success: false,
-                message: 'Conflict: This issue was updated by another user.',
-                data: err.latestIssue,
+                message: err.message,
+                latestVersion: err.latestVersion,
             });
         }
-        return res.status(500).json({ success: false, message: 'Internal server error' });
+        return res.status(err.statusCode || 500).json({
+            success: false,
+            message: err.message || 'Internal server error',
+        });
     }
 };
 
 const deleteIssue = async (req, res) => {
     try {
         const organizationId = req.tenant.orgId;
+        const userId = req.user.id;
         const { projectId, issueId } = req.params;
 
-        await issueService.deleteIssue(organizationId, projectId, issueId);
+        await issueService.deleteIssue(
+            organizationId,
+            userId,
+            projectId,
+            issueId
+        );
 
         return res.status(200).json({
             success: true,
             message: 'Issue deleted successfully',
         });
     } catch (err) {
-        if (err.message === 'PROJECT_NOT_FOUND') {
-            return res.status(404).json({ success: false, message: 'Project not found' });
-        }
-        if (err.message === 'ISSUE_NOT_FOUND') {
-            return res.status(404).json({ success: false, message: 'Issue not found' });
-        }
-        return res.status(500).json({ success: false, message: 'Internal server error' });
+        console.error('DELETE ISSUE ERROR:', err);
+        return res.status(err.statusCode || 500).json({
+            success: false,
+            message: err.message || 'Internal server error',
+        });
     }
 };
 

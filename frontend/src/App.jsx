@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import RegisterUser from './pages/auth/registerUser';
 import Login from './pages/auth/login';
-import Home from './pages/home';
+import Home from './pages/Home';
 import AppLayout from './layout/appLayOut';
 import ProtectedRoutes from './routes/protectedRoutes';
 import PublicRoutes from './routes/publicRoutes';
@@ -10,12 +10,12 @@ import TeamMember from './pages/workspace/teammember';
 import { ProjectsPage } from './pages/projects/ProjectPage';
 import { ProjectBoardPage } from './pages/statuses/ProjectBoardPage';
 import { RolesPage } from './pages/role/RolesPage';
-
+import {AuditLogsPage} from './pages/auditlogs/AuditLogsPage'
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/home" replace />} />
+        <Route path="/" element={<Navigate to="/home" />} />
 
         {/* Public Routes (Login & Register) */}
         <Route element={<PublicRoutes />}>
@@ -34,7 +34,8 @@ function App() {
             <Route path="projects" element={<ProjectsPage />} />
             <Route path="projects/:projectId" element={<ProjectBoardPage />} />
             <Route path="members" element={<TeamMember />} />
-            <Route path="roles" element={<RolesPage/>}/>
+            <Route path="roles" element={<RolesPage />} />
+            <Route path="audit-logs" element={<AuditLogsPage/>}/>
           </Route>
 
 

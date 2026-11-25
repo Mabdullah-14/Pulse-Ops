@@ -15,7 +15,6 @@ const AddMemberModal = ({ isOpen, onClose, orgSlug, onSuccessMessage }) => {
 
     if (!isOpen) return null;
 
-    // Roles array nikalein (aur 'owner' system role ko dropdown se hide rakhein taake kisi ko owner assign na ho)
     const allRoles = Array.isArray(rolesRes) ? rolesRes : rolesRes?.roles || rolesRes?.data || [];
     const assignableRoles = allRoles.filter((r) => !r.isSystem);
 
@@ -54,13 +53,13 @@ const AddMemberModal = ({ isOpen, onClose, orgSlug, onSuccessMessage }) => {
             <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
                 <div className="mb-4 flex items-center justify-between">
                     <h2 className="text-xl font-bold text-gray-900">Add Team Member</h2>
-                    <button
+                    {/* <button
                         type="button"
                         onClick={onClose}
                         className="text-xl font-bold text-gray-400 hover:text-gray-600 cursor-pointer"
                     >
                         ×
-                    </button>
+                    </button> */}
                 </div>
 
                 {error && (

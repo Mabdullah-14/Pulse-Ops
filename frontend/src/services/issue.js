@@ -3,16 +3,31 @@ import { handleApiError } from "./auth";
 
 export const createIssue = async ({ orgSlug, projectId }, data) => {
     try {
-        const res = await API.post(`/issues/${orgSlug}/${projectId}/create-issue`, data);
+        const res = await API.post(
+            `/issues/${orgSlug}/${projectId}/create-issue`,
+            data,
+            {
+                headers: {
+                    'Idempotency-Key': crypto.randomUUID(),
+                },
+            }
+        );
         return res.data;
     } catch (error) {
         handleApiError(error);
     }
 };
 
-export const getIssues = async ({ orgSlug, projectId }) => {
+export const getIssues = async ({ orgSlug, projectId, cursor = null, limit = 10 }) => {
     try {
-        const res = await API.get(`/issues/${orgSlug}/${projectId}`);
+        const params = new URLSearchParams()
+        if (limit) {
+            params.append('limit', limit)
+        }
+        if (cursor) {
+            params.append('cursor', cursor)
+        }
+        const res = await API.get(`/issues/${orgSlug}/${projectId}?${params.toString()}`);
         return res.data;
     } catch (error) {
         handleApiError(error);

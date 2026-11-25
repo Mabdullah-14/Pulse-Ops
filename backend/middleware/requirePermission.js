@@ -1,23 +1,25 @@
 const requirePermission = (requiredPermission) => {
     return (req, res, next) => {
-        const permission = req.tenant?.permissions;
+        const permissions = req.tenant?.permissions;
 
-        if (!permission || !Array.isArray(permissions)) {
+        if (!permissions || !Array.isArray(permissions)) {
             return res.status(403).json({
-                sucsess: false,
+                success: false,
                 message: 'Forbidden: No permissions found for this organization',
-            })
+            });
         }
 
-        if (!permission.includes(requirePermission)) {
+        if (!permissions.includes(requiredPermission)) {
             return res.status(403).json({
                 success: false,
                 message: `Forbidden: Missing '${requiredPermission}' permission`,
             });
         }
-        next()
-    }
-}
+
+        next();
+    };
+};
+
 module.exports = {
-    requirePermission
-}
+    requirePermission,
+};

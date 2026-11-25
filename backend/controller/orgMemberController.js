@@ -27,7 +27,10 @@ const handleAddMember = async (req, res) => {
             data: newMember,
         });
     } catch (error) {
+        console.error('ADD MEMBER ERROR:', error);
+
         return res.status(error.statusCode || 500).json({
+
             success: false,
             message: error.message,
         });

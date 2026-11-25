@@ -51,12 +51,12 @@ const CreateOrgModal = ({ isOpen, onClose }) => {
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-900">Create Organization</h2>
-          <button
+          {/* <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 text-xl font-bold"
           >
             ×
-          </button>
+          </button> */}
         </div>
 
         {error && (
@@ -84,11 +84,11 @@ const CreateOrgModal = ({ isOpen, onClose }) => {
             placeholder="e.g. pulseops-tech"
           />
 
-          <div className="mt-2 flex justify-end gap-3">
+          <div className="mt-2 flex justify-end gap-5">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="rounded-lg border border-gray-300 px-20 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               Cancel
             </button>

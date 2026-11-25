@@ -1,22 +1,28 @@
 import { API } from "./api";
 import { handleApiError } from "./auth";
 
-export const getAuditLogs = async (orgSlug) => {
+export const getAuditLogs = async ({orgSlug, cursor = null, limit=10}) => {
     try {
+        const params= new URLSearchParams()
+        if(limit){
+            params.append("limit",limit)
 
-        const res = await api.get(`/audit-logs/${orgSlug}/get-audit-logs`)
-        return res.data
-
+        }
+        if(cursor){
+            params.append("cursor",cursor)
+        }
+        const res = await API.get(`/audit/${orgSlug}/get-audit-logs?${params.toString()}`);
+        return res.data;
     } catch (error) {
-        handleApiError(error)
+        handleApiError(error);
     }
-}
+};
 
 export const getEntityAuditLogs = async ({ orgSlug, entityType, entityId }) => {
     try {
-        const res = await api.get(`/audit-logs/${orgSlug}/${entityType}/${entityId}`)
-        return res.data
+        const res = await API.get(`/audit/${orgSlug}/${entityType}/${entityId}`);
+        return res.data;
     } catch (error) {
-        handleApiError(error)
+        handleApiError(error);
     }
-}
+};

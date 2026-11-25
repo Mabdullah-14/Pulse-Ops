@@ -40,7 +40,7 @@ const createCustomRole = async ({ orgId, userId, name, permissions = [] }) => {
 
         await logActivity(
             {
-                organizationId: orgId,
+                orgId: orgId,
                 userId,
                 action: AUDIT_ACTIONS.ROLE_CREATED,
                 entityType: ENTITY_TYPES.ROLE,
@@ -82,7 +82,7 @@ const updateCustomRole = async ({ orgId, userId, roleId, name, permissions }) =>
 
         await logActivity(
             {
-                organizationId: orgId,
+                orgId: orgId,
                 userId,
                 action: AUDIT_ACTIONS.ROLE_UPDATED,
                 entityType: ENTITY_TYPES.ROLE,
@@ -130,7 +130,7 @@ const deleteCustomRole = async ({ orgId, userId, roleId }) => {
 
         await logActivity(
             {
-                organizationId: orgId,
+                orgId: orgId,
                 userId,
                 action: AUDIT_ACTIONS.ROLE_DELETED,
                 entityType: ENTITY_TYPES.ROLE,

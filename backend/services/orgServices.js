@@ -1,10 +1,11 @@
 const { db } = require('../config/db');
 const { findOrgBySlug, insertOrg } = require('../repositories/orgrepo');
 const { addMemberToOrg, getUserOrgs } = require('../repositories/orgMemberrepo');
-const { logActivity } = require('./auditLogsServices')
+const { logActivity } = require('./auditLogsServices');
 const { createRole } = require('../repositories/roleRepo');
 const { OWNER_ROLE_TEMPLATE } = require('../constants/permission');
-const { AUDIT_ACTIONS, ENTITY_TYPES } = require('../constants/auditAction')
+const { AUDIT_ACTIONS, ENTITY_TYPES } = require('../constants/auditAction');
+
 const createOrganization = async ({ userId, name, slug }) => {
   const existingOrg = await findOrgBySlug(slug);
   if (existingOrg) {
@@ -38,20 +39,21 @@ const createOrganization = async ({ userId, name, slug }) => {
       tx
     );
 
+    // 4. Record audit log inside the same transaction
     await logActivity(
       {
-        organizationId: newOrg.id,
+        orgId: newOrg.id, 
         userId,
         action: AUDIT_ACTIONS.ORG_CREATED,
-        actionType: ENTITY_TYPES.ORGANIZATION,
+        entityType: ENTITY_TYPES.ORGANIZATION,
         entityId: newOrg.id,
         metadata: {
           name: newOrg.name,
-          slug: newOrg.slug
+          slug: newOrg.slug,
         },
-        tx
-      }
-    )
+      },
+      tx
+    );
 
     return newOrg;
   });

@@ -64,21 +64,21 @@ export const CreateIssueModal = ({
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-                        {/* <div>
+                        <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Column / Status *</label>
                             <select
                                 required
                                 value={formData.statusId}
                                 onChange={(e) => setFormData({ ...formData, statusId: e.target.value })}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                            >   
+                            >
                                 {statuses.map((st) => (
                                     <option key={st.id} value={st.id}>
                                         {st.name}
                                     </option>
                                 ))}
                             </select>
-                        </div> */}
+                        </div>
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
@@ -90,7 +90,7 @@ export const CreateIssueModal = ({
                                 <option value="LOW">LOW</option>
                                 <option value="MEDIUM">MEDIUM</option>
                                 <option value="HIGH">HIGH</option>
-                                <option value="URGENT">URGENT</option>
+                                <option value="CRITICAL">CRITICAL</option>
                             </select>
                         </div>
                     </div>

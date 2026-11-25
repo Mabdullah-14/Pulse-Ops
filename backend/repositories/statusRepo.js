@@ -19,7 +19,7 @@ const getStatusesByProject = async (projectId) => {
   });
 };
 
-const getStatusById = async (projectId, statusId) => {
+const verifyStatusInProject = async (projectId, statusId) => {
   return await db.query.statuses.findFirst({
     where: and(
       eq(statuses.id, statusId),
@@ -29,12 +29,12 @@ const getStatusById = async (projectId, statusId) => {
 };
 
 const createStatus = async (data, tx = db) => {
-  const [newStatus] = await db.insert(statuses).values(data).returning();
+  const [newStatus] = await tx.insert(statuses).values(data).returning();
   return newStatus;
 };
 
 const updateStatus = async (projectId, statusId, data, tx = db) => {
-  const [updated] = await db
+  const [updated] = await tx
     .update(statuses)
     .set(data)
     .where(and(eq(statuses.id, statusId), eq(statuses.projectId, projectId)))
@@ -43,7 +43,7 @@ const updateStatus = async (projectId, statusId, data, tx = db) => {
 };
 
 const deleteStatus = async (projectId, statusId, tx = db) => {
-  const [deleted] = await db
+  const [deleted] = await tx
     .delete(statuses)
     .where(and(eq(statuses.id, statusId), eq(statuses.projectId, projectId)))
     .returning();
@@ -53,7 +53,7 @@ const deleteStatus = async (projectId, statusId, tx = db) => {
 module.exports = {
   verifyProjectInOrg,
   getStatusesByProject,
-  getStatusById,
+  verifyStatusInProject,
   createStatus,
   updateStatus,
   deleteStatus,

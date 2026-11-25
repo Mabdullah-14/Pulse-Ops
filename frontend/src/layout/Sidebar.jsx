@@ -7,43 +7,49 @@ import {
   ListChecks,
   FolderKanban,
   Settings,
+  Shield,
   Users,
   X,
   Zap,
   ChevronRight,
 } from "lucide-react";
+import { usePermission } from "../hooks/usePermission";
+import { PERMISSIONS } from "../constants/Permisson";
 
 export default function Sidebar({ open, onClose }) {
   const { orgSlug } = useParams();
   const basePath = orgSlug ? `/orgs/${orgSlug}` : "";
 
+  // Simple permission check
+  const { hasPermission } = usePermission() || {};
+  const canManageRoles = hasPermission ? hasPermission(PERMISSIONS.ROLE_CREATE) : true;
+  const canViewLogs = hasPermission ? hasPermission(PERMISSIONS.AUDIT_LOG_VIEW) : true;
+
   const mainLinks = [
-    { to: "/home", label: "Home", icon: Home },
-    { to: `${basePath}/projects`, label: "Projects", icon: FolderKanban },
-    { to: `${basePath}/board`, label: "Board", icon: KanbanSquare },
-    { to: `${basePath}/issues`, label: "All Issues", icon: ListChecks },
+    { to: "/home", label: "Home", icon: Home, show: true },
+    { to: `${basePath}/projects`, label: "Projects", icon: FolderKanban, show: !!orgSlug },
+    { to: `${basePath}/board`, label: "Board", icon: KanbanSquare, show: !!orgSlug },
+    { to: `${basePath}/issues`, label: "All Issues", icon: ListChecks, show: !!orgSlug },
   ];
 
   const managementLinks = [
-    { to: `${basePath}/members`, label: "Members", icon: Users },
-    { to: 'get-audit-logs', label: "Audit Logs", icon: History },
+    { to: `${basePath}/members`, label: "Members", icon: Users, show: !!orgSlug },
+    { to: `${basePath}/roles`, label: "Roles", icon: Shield, show: !!orgSlug && canManageRoles },
+    { to: `${basePath}/audit-logs`, label: "Audit Logs", icon: History, show: !!orgSlug && canViewLogs },
   ];
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === "Escape" && open) {
-        onClose();
-      }
+      if (e.key === "Escape" && open) onClose();
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open, onClose]);
 
-  const renderNavItem = ({ to, label, icon: Icon, exact }) => (
+  const renderNavItem = ({ to, label, icon: Icon }) => (
     <NavLink
       key={to}
       to={to}
-      end={exact}
       onClick={onClose}
       className={({ isActive }) =>
         `group relative flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150 ${isActive
@@ -57,17 +63,12 @@ export default function Sidebar({ open, onClose }) {
           <div className="flex items-center gap-3">
             <Icon
               size={17}
-              className={`transition-transform duration-150 ${isActive
-                ? "text-white"
-                : "text-gray-400 group-hover:text-blue-600 group-hover:scale-105"
+              className={`transition-transform duration-150 ${isActive ? "text-white" : "text-gray-400 group-hover:text-blue-600 group-hover:scale-105"
                 }`}
             />
             <span>{label}</span>
           </div>
-
-          {isActive && (
-            <span className="h-1.5 w-1.5 rounded-full bg-white/90" />
-          )}
+          {isActive && <span className="h-1.5 w-1.5 rounded-full bg-white/90" />}
         </>
       )}
     </NavLink>
@@ -75,16 +76,15 @@ export default function Sidebar({ open, onClose }) {
 
   return (
     <>
-      {/* Backdrop for mobile */}
+      {/* Mobile Backdrop */}
       {open && (
         <div
           className="fixed inset-0 z-40 bg-gray-900/25 backdrop-blur-xs transition-opacity lg:hidden"
           onClick={onClose}
-          aria-hidden="true"
         />
       )}
 
-      {/* Sidebar container */}
+      {/* Sidebar */}
       <aside
         className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-gray-200/80 bg-white/95 backdrop-blur-xl transition-transform duration-300 ease-in-out lg:sticky lg:top-15 lg:z-0 lg:h-[calc(100vh-3.75rem)] lg:w-60 lg:translate-x-0 ${open ? "translate-x-0 shadow-2xl lg:shadow-none" : "-translate-x-full"
           }`}
@@ -100,8 +100,7 @@ export default function Sidebar({ open, onClose }) {
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close menu"
-            className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-600 cursor-pointer"
+            className="rounded-lg p-1.5 text-gray-500 hover:bg-blue-50 hover:text-blue-600 cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -124,53 +123,35 @@ export default function Sidebar({ open, onClose }) {
           </div>
         )}
 
-        {/* Navigation Links */}
+        {/* Links */}
         <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-3 py-4">
           <div>
             <p className="px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
               Menu
             </p>
             <nav className="flex flex-col gap-1">
-              {mainLinks.map(renderNavItem)}
+              {mainLinks.filter((item) => item.show).map(renderNavItem)}
             </nav>
           </div>
 
-          <div>
-            <p className="px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-              Organization
-            </p>
-            <nav className="flex flex-col gap-1">
-              {managementLinks.map(renderNavItem)}
-            </nav>
-          </div>
+          {orgSlug && (
+            <div>
+              <p className="px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                Organization
+              </p>
+              <nav className="flex flex-col gap-1">
+                {managementLinks.filter((item) => item.show).map(renderNavItem)}
+              </nav>
+            </div>
+          )}
         </div>
 
-        {/* Bottom Section: Settings */}
-        <div className="border-t border-gray-200/80 p-3 mt-auto bg-gray-50/40">
-          <NavLink
-            to={`${basePath}/settings`}
-            onClick={onClose}
-            className={({ isActive }) =>
-              `group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150 ${isActive
-                ? "bg-blue-600 text-white shadow-sm shadow-blue-600/20"
-                : "text-gray-600 hover:bg-blue-50/70 hover:text-blue-600"
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                <Settings
-                  size={17}
-                  className={`transition-transform duration-200 ${isActive
-                    ? "text-white"
-                    : "text-gray-400 group-hover:text-blue-600 group-hover:rotate-45"
-                    }`}
-                />
-                <span>Settings</span>
-              </>
-            )}
-          </NavLink>
-        </div>
+        {/* Bottom Settings Link */}
+        {orgSlug && (
+          <div className="border-t border-gray-200/80 p-3 mt-auto bg-gray-50/40">
+            {renderNavItem({ to: `${basePath}/settings`, label: "Settings", icon: Settings })}
+          </div>
+        )}
       </aside>
     </>
   );

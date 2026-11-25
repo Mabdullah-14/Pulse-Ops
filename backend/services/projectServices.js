@@ -1,13 +1,10 @@
 const projectRepo = require('../repositories/projectsrepo');
-const { logActivity } = require('./auditLogsServices')
+const { logActivity } = require('./auditLogsServices');
 const { AUDIT_ACTIONS, ENTITY_TYPES } = require('../constants/auditAction');
 const { db } = require('../config/db');
 
-
-const createProject = async (organizationId, data) => {
-    const rawKey = data.key
-        ? data.key.trim()
-        : 'PRJ';
+const createProject = async (organizationId, userId, data) => {
+    const rawKey = data.key ? data.key.trim() : 'PRJ';
     const normalizedKey = rawKey.toUpperCase();
 
     const existingProject = await projectRepo.getProjectByKey(organizationId, normalizedKey);
@@ -16,35 +13,36 @@ const createProject = async (organizationId, data) => {
     }
 
     return await db.transaction(async (tx) => {
-        const newProject = await projectRepo.createProject({
-            organizationId,
-            name: data.name.trim(),
-            key: normalizedKey,
-            description: data.description || null,
-            category: data.category || null,
-            budgetHours: data.budgetHours || null,
-            deliveryDate: data.deliveryDate ? new Date(data.deliveryDate) : null,
-        },
+        const newProject = await projectRepo.createProject(
+            {
+                organizationId,
+                name: data.name.trim(),
+                key: normalizedKey,
+                description: data.description || null,
+                category: data.category || null,
+                budgetHours: data.budgetHours || null,
+                deliveryDate: data.deliveryDate ? new Date(data.deliveryDate) : null,
+            },
             tx
         );
 
-        await logActivity({
-            organizationId,
-            userId,
-            action: AUDIT_ACTIONS.PROJECT_CREATED,
-            entityType: ENTITY_TYPES.PROJECT,
-            entityId: newProject.id,
-            metadata: {
-                name: newProject.name,
-                key: newProject.key,
+        await logActivity(
+            {
+                orgId: organizationId,
+                userId,
+                action: AUDIT_ACTIONS.PROJECT_CREATED,
+                entityType: ENTITY_TYPES.PROJECT,
+                entityId: newProject.id,
+                metadata: {
+                    name: newProject.name,
+                    key: newProject.key,
+                },
             },
-        },
             tx
-        )
-        return newProject
-    })
+        );
 
-
+        return newProject;
+    });
 };
 
 const getProjects = async (organizationId) => {
@@ -59,7 +57,7 @@ const getProjectById = async (organizationId, projectId) => {
     return project;
 };
 
-const updateProject = async (organizationId, projectId, data) => {
+const updateProject = async (organizationId, userId, projectId, data) => {
     if (data.key) {
         const normalizedKey = data.key.trim().toUpperCase();
         const existing = await projectRepo.getProjectByKey(organizationId, normalizedKey);
@@ -74,31 +72,30 @@ const updateProject = async (organizationId, projectId, data) => {
     }
 
     return await db.transaction(async (tx) => {
-        const updated = await projectRepo.updateProject(organizationId, projectId, data);
+        const updated = await projectRepo.updateProject(organizationId, projectId, data, tx);
         if (!updated) {
             throw new Error('NOT_FOUND');
         }
 
-        await logActivity({
-            organizationId,
-            userId,
-            action: AUDIT_ACTIONS.PROJECT_UPDATED,
-            entityType: ENTITY_TYPES.PROJECT,
-            entityId: updated.id,
-            metadata: {
-                name: updated.name,
-                updatedFields: data,
+        await logActivity(
+            {
+                orgId: organizationId,
+                userId,
+                action: AUDIT_ACTIONS.PROJECT_UPDATED,
+                entityType: ENTITY_TYPES.PROJECT,
+                entityId: updated.id,
+                metadata: {
+                    name: updated.name,
+                    updatedFields: data,
+                },
             },
-        },
             tx
-        )
-        return updated
+        );
 
-    })
-
+        return updated;
+    });
 };
 
-// 5. Delete Project
 const deleteProject = async (organizationId, userId, projectId) => {
     const existingProject = await projectRepo.getProjectById(organizationId, projectId);
     if (!existingProject) {
@@ -113,7 +110,7 @@ const deleteProject = async (organizationId, userId, projectId) => {
 
         await logActivity(
             {
-                organizationId,
+                orgId: organizationId,
                 userId,
                 action: AUDIT_ACTIONS.PROJECT_DELETED,
                 entityType: ENTITY_TYPES.PROJECT,

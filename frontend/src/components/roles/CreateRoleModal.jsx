@@ -47,13 +47,13 @@ export const CreateRoleModal = ({ isOpen, onClose, orgSlug }) => {
             <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl max-h-[90vh] flex flex-col">
                 <div className="mb-4 flex items-center justify-between">
                     <h2 className="text-xl font-bold text-gray-900">Create Custom Role</h2>
-                    <button
+                    {/* <button
                         type="button"
                         onClick={onClose}
                         className="text-gray-400 hover:text-gray-600 text-xl font-bold cursor-pointer"
                     >
                         ×
-                    </button>
+                    </button> */}
                 </div>
 
                 {errors.general && (

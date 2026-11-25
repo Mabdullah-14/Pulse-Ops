@@ -3,13 +3,16 @@ const projectService = require('../services/projectServices');
 const createProject = async (req, res) => {
   try {
     const organizationId = req.tenant.orgId;
-    const project = await projectService.createProject(organizationId, req.body);
+    const userId = req.user.id;
+    const project = await projectService.createProject(organizationId, userId, req.body);
 
     return res.status(201).json({
       success: true,
       data: project,
     });
   } catch (err) {
+    console.error('CREATE PROJECT ERROR:', err);
+
     if (err.message === 'DUPLICATE_KEY') {
       return res.status(409).json({
         success: false,
@@ -68,10 +71,12 @@ const getProjectById = async (req, res) => {
 const updateProject = async (req, res) => {
   try {
     const organizationId = req.tenant.orgId;
+    const userId = req.user.id;
     const { projectId } = req.params;
 
     const updated = await projectService.updateProject(
       organizationId,
+      userId,
       projectId,
       req.body
     );
@@ -103,9 +108,10 @@ const updateProject = async (req, res) => {
 const deleteProject = async (req, res) => {
   try {
     const organizationId = req.tenant.orgId;
+    const userId = req.user.id;
     const { projectId } = req.params;
 
-    await projectService.deleteProject(organizationId, projectId);
+    await projectService.deleteProject(organizationId, userId, projectId);
 
     return res.status(200).json({
       success: true,

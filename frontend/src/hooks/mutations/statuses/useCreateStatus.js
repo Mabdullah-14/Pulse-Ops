@@ -7,8 +7,10 @@ export const useCreateStatus = () => {
     return useMutation({
         mutationFn: ({ orgSlug, projectId, data }) =>
             createStatus({ orgSlug, projectId }, data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['status'] });
+        onSuccess: async (_data, variables) => {
+            await queryClient.invalidateQueries({
+                queryKey: ['status', variables.orgSlug, variables.projectId],
+            });
         },
     });
 };

@@ -6,7 +6,7 @@ export const useCreateIssue = () => {
 
     return useMutation({
         mutationFn: ({ orgSlug, projectId, data }) => createIssue({ orgSlug, projectId }, data),
-        onSuccess: () => {
+        onSuccess: (_data,{orgSlug,projectId}) => {
             queryClient.invalidateQueries({
                 queryKey: ['issues', orgSlug, projectId],
             });

@@ -15,7 +15,6 @@ const WorkspaceLayout = () => {
         );
     }
 
-    // If the user is not a part of this organization
     if (isError || !data?.success) {
         return <Navigate to="/home" replace />;
     }
@@ -28,6 +27,8 @@ const WorkspaceLayout = () => {
         permissions.includes(PERMISSIONS.ROLE_CREATE) ||
         permissions.includes(PERMISSIONS.ROLE_UPDATE) ||
         permissions.includes(PERMISSIONS.ROLE_DELETE);
+
+    const canViewLogs = permissions.includes(PERMISSIONS.AUDIT_LOG_VIEW);
 
     return (
         <div className="flex min-h-screen bg-gray-50">
@@ -72,6 +73,17 @@ const WorkspaceLayout = () => {
                                 }
                             >
                                 Roles & Permissions
+                            </NavLink>
+                        )}
+                        {canViewLogs && (
+                            <NavLink
+                                to={`/orgs/${orgSlug}/audit-logs`}
+                                className={({ isActive }) =>
+                                    `rounded-lg px-3 py-2 text-sm font-medium ${isActive ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-100'
+                                    }`
+                                }
+                            >
+                                Audit Logs
                             </NavLink>
                         )}
                     </nav>

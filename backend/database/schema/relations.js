@@ -41,5 +41,6 @@ const organizationMembersRelations = relations(organizationMembers, ({ one }) =>
 module.exports = {
     organizationRelations,
     userRelations,
+    organizationRolesRelations,
     organizationMembersRelations
 }

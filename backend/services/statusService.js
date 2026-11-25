@@ -1,10 +1,9 @@
 const statusRepo = require('../repositories/statusRepo');
-
-const { logActivity } = require('./auditLogsServices')
+const { logActivity } = require('./auditLogsServices');
 const { AUDIT_ACTIONS, ENTITY_TYPES } = require('../constants/auditAction');
 const { db } = require('../config/db');
 
-const createStatus = async (organizationId, projectId, data) => {
+const createStatus = async (organizationId, userId, projectId, data) => {
   const project = await statusRepo.verifyProjectInOrg(organizationId, projectId);
   if (!project) {
     throw new Error('PROJECT_NOT_FOUND');
@@ -18,27 +17,28 @@ const createStatus = async (organizationId, projectId, data) => {
       {
         projectId,
         name: data.name.trim(),
-        position: nextPosition,
+        position: data.position !== undefined ? data.position : nextPosition,
       },
       tx
+    );
 
-    )
-    await logActivity({
-      organizationId,
-      userId,
-      action: AUDIT_ACTIONS.STATUS_CREATED,
-      entityType: ENTITY_TYPES.STATUS,
-      entityId: newStatus.id,
-      metadata: {
-        name: newStatus.name,
-        projectId,
+    await logActivity(
+      {
+        orgId: organizationId,
+        userId,
+        action: AUDIT_ACTIONS.STATUS_CREATED,
+        entityType: ENTITY_TYPES.STATUS,
+        entityId: newStatus.id,
+        metadata: {
+          name: newStatus.name,
+          projectId,
+        },
       },
-    },
       tx
-    )
-    return newStatus
-  })
+    );
 
+    return newStatus;
+  });
 };
 
 const getStatuses = async (organizationId, projectId) => {
@@ -68,7 +68,7 @@ const updateStatus = async (organizationId, userId, projectId, statusId, data) =
 
     await logActivity(
       {
-        organizationId,
+        orgId: organizationId,
         userId,
         action: AUDIT_ACTIONS.STATUS_UPDATED,
         entityType: ENTITY_TYPES.STATUS,
@@ -100,7 +100,7 @@ const deleteStatus = async (organizationId, userId, projectId, statusId) => {
 
     await logActivity(
       {
-        organizationId,
+        orgId: organizationId,
         userId,
         action: AUDIT_ACTIONS.STATUS_DELETED,
         entityType: ENTITY_TYPES.STATUS,
@@ -116,6 +116,7 @@ const deleteStatus = async (organizationId, userId, projectId, statusId) => {
     return deleted;
   });
 };
+
 module.exports = {
   createStatus,
   getStatuses,

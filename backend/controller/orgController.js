@@ -20,10 +20,13 @@ const handleCreateOrganization = async (req, res) => {
       message: 'Organization created successfully',
     });
   } catch (error) {
+    console.error('REAL DB ERROR:', error.cause || error)
     return res.status(error.statusCode || 500).json({
       success: false,
       message: error.message,
     });
+    ;
+
   }
 };
 
