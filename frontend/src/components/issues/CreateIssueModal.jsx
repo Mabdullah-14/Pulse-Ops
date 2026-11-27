@@ -46,31 +46,41 @@ export const CreateIssueModal = ({
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-xl">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Create New Issue</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-xl bg-white p-4 shadow-xl sm:p-6">
+                <h2 className="mb-4 text-lg font-bold text-gray-900 sm:text-xl">
+                    Create New Issue
+                </h2>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Issue Title *</label>
+                        <label className="mb-1 block text-sm font-medium text-gray-700">
+                            Issue Title *
+                        </label>
                         <input
                             type="text"
                             required
                             value={formData.title}
-                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                            onChange={(e) =>
+                                setFormData({ ...formData, title: e.target.value })
+                            }
                             placeholder="e.g. Fix login redirect bug"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
                         />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Column / Status *</label>
+                            <label className="mb-1 block text-sm font-medium text-gray-700">
+                                Column / Status *
+                            </label>
                             <select
                                 required
                                 value={formData.statusId}
-                                onChange={(e) => setFormData({ ...formData, statusId: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                                onChange={(e) =>
+                                    setFormData({ ...formData, statusId: e.target.value })
+                                }
+                                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
                             >
                                 {statuses.map((st) => (
                                     <option key={st.id} value={st.id}>
@@ -81,11 +91,15 @@ export const CreateIssueModal = ({
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                            <label className="mb-1 block text-sm font-medium text-gray-700">
+                                Priority
+                            </label>
                             <select
                                 value={formData.priority}
-                                onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                                onChange={(e) =>
+                                    setFormData({ ...formData, priority: e.target.value })
+                                }
+                                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
                             >
                                 <option value="LOW">LOW</option>
                                 <option value="MEDIUM">MEDIUM</option>
@@ -96,28 +110,32 @@ export const CreateIssueModal = ({
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <label className="mb-1 block text-sm font-medium text-gray-700">
+                            Description
+                        </label>
                         <textarea
                             rows={3}
                             value={formData.description}
-                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                            onChange={(e) =>
+                                setFormData({ ...formData, description: e.target.value })
+                            }
                             placeholder="Add details or steps to reproduce..."
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
                         />
                     </div>
 
-                    <div className="flex justify-end gap-3 pt-2">
+                    <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end sm:gap-3">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg cursor-pointer"
+                            className="w-full cursor-pointer rounded-lg px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-100 sm:w-auto sm:py-2"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={isPending}
-                            className="px-4 py-2 text-sm bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 cursor-pointer"
+                            className="w-full cursor-pointer rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 sm:w-auto sm:py-2"
                         >
                             {isPending ? 'Creating...' : 'Create Issue'}
                         </button>

@@ -37,7 +37,7 @@ const CreateOrgModal = ({ isOpen, onClose }) => {
         onSuccess: () => {
           setName('');
           setSlug('');
-          onClose(); // Modal band karein
+          onClose();
         },
         onError: (err) => {
           setError(err.message || 'Failed to create organization');
@@ -48,19 +48,15 @@ const CreateOrgModal = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+      <div className="max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-4 shadow-xl sm:p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-900">Create Organization</h2>
-          {/* <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-xl font-bold"
-          >
-            ×
-          </button> */}
+          <h2 className="text-lg font-bold text-gray-900 sm:text-xl">
+            Create Organization
+          </h2>
         </div>
 
         {error && (
-          <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-500 border border-red-200">
+          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-500">
             {error}
           </div>
         )}
@@ -84,15 +80,19 @@ const CreateOrgModal = ({ isOpen, onClose }) => {
             placeholder="e.g. pulseops-tech"
           />
 
-          <div className="mt-2 flex justify-end gap-5">
+          <div className="mt-2 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg border border-gray-300 px-20 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="w-full cursor-pointer rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 sm:w-auto sm:py-2"
             >
               Cancel
             </button>
-            <Button type="submit" loading={isPending}>
+            <Button
+              type="submit"
+              loading={isPending}
+              className="w-full sm:w-auto"
+            >
               Create
             </Button>
           </div>

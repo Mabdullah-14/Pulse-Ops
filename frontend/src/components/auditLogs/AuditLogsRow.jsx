@@ -12,7 +12,6 @@ export const AuditLogRow = ({ log }) => {
         return 'bg-blue-50 text-blue-700 border-blue-200'
     }
 
-    
     const formatMetadata = (metadata) => {
         if (!metadata || Object.keys(metadata).length === 0) return '—'
         return Object.entries(metadata)
@@ -21,18 +20,18 @@ export const AuditLogRow = ({ log }) => {
     }
 
     return (
-        <tr className="hover:bg-gray-50 transition">
+        <tr className="transition hover:bg-gray-50">
             {/* Performed By (User) */}
             <td className="px-6 py-4">
-                <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-bold uppercase text-blue-600 shrink-0">
+                <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold uppercase text-blue-600">
                         {log.user?.name?.charAt(0) || 'S'}
                     </div>
-                    <div>
-                        <div className="text-sm font-medium text-gray-900">
+                    <div className="min-w-0">
+                        <div className="truncate text-sm font-medium text-gray-900">
                             {log.user?.name || 'System'}
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="truncate text-xs text-gray-500">
                             {log.user?.email || '—'}
                         </div>
                     </div>
@@ -42,7 +41,7 @@ export const AuditLogRow = ({ log }) => {
             {/* Action Badge */}
             <td className="px-6 py-4">
                 <span
-                    className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase ${getActionBadgeStyle(
+                    className={`inline-flex shrink-0 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase ${getActionBadgeStyle(
                         log.action
                     )}`}
                 >
@@ -52,18 +51,21 @@ export const AuditLogRow = ({ log }) => {
 
             {/* Entity Type */}
             <td className="px-6 py-4">
-                <span className="rounded-md bg-gray-100 px-2 py-1 text-xs font-semibold uppercase text-gray-700">
+                <span className="inline-flex whitespace-nowrap rounded-md bg-gray-100 px-2 py-1 text-xs font-semibold uppercase text-gray-700">
                     {log.entityType}
                 </span>
             </td>
 
             {/* Details (Metadata) */}
-            <td className="px-6 py-4 text-xs text-gray-600 max-w-xs truncate" title={formatMetadata(log.metadata)}>
+            <td
+                className="max-w-xs truncate px-6 py-4 text-xs text-gray-600"
+                title={formatMetadata(log.metadata)}
+            >
                 {formatMetadata(log.metadata)}
             </td>
 
             {/* Timestamp */}
-            <td className="px-6 py-4 text-xs text-gray-500 whitespace-nowrap">
+            <td className="whitespace-nowrap px-6 py-4 text-xs text-gray-500">
                 {log.createdAt ? new Date(log.createdAt).toLocaleString() : '—'}
             </td>
         </tr>

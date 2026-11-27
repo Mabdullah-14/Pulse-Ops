@@ -1,24 +1,24 @@
-import React, { use } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { usePermission } from '../../hooks/usePermission'
-import { PERMISSIONS } from '../../constants/Permisson'
-export const ProjectCard = ({ project, orgSlug, onEdit, onDelete }) => {
-    const { hasPermission } = usePermission()
-    const canEdit = hasPermission(PERMISSIONS.PROJECT_UPDATE)
-    const canDelete = hasPermission(PERMISSIONS.PROJECT_DELETE)
+import { usePermission } from '../../hooks/usePermission';
+import { PERMISSIONS } from '../../constants/Permisson';
 
+export const ProjectCard = ({ project, orgSlug, onEdit, onDelete }) => {
+    const { hasPermission } = usePermission();
+    const canEdit = hasPermission(PERMISSIONS.PROJECT_UPDATE);
+    const canDelete = hasPermission(PERMISSIONS.PROJECT_DELETE);
 
     return (
-        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-            <div>
-                <div className="flex items-center justify-between mb-3">
-                    <span className="px-2.5 py-1 text-xs font-semibold bg-blue-50 text-blue-700 rounded-md uppercase">
+        <div className="flex min-w-0 flex-col justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md sm:p-5">
+            <div className="min-w-0">
+                <div className="mb-3 flex items-center justify-between gap-2">
+                    <span className="shrink-0 rounded-md bg-blue-50 px-2.5 py-1 text-xs font-semibold uppercase text-blue-700">
                         {project.key}
                     </span>
                     <span
-                        className={`px-2 py-0.5 text-xs font-medium rounded-full ${project.status === 'ACTIVE'
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-gray-100 text-gray-600'
+                        className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${project.status === 'ACTIVE'
+                                ? 'bg-green-100 text-green-700'
+                                : 'bg-gray-100 text-gray-600'
                             }`}
                     >
                         {project.status}
@@ -27,40 +27,36 @@ export const ProjectCard = ({ project, orgSlug, onEdit, onDelete }) => {
 
                 <Link
                     to={`/orgs/${orgSlug}/projects/${project.id}`}
-                    className="text-lg font-semibold text-gray-900 hover:text-blue-600 transition block mb-1"
+                    className="mb-1 block break-words text-base font-semibold text-gray-900 transition hover:text-blue-600 sm:text-lg"
                 >
                     {project.name}
                 </Link>
 
-                <p className="text-sm text-gray-500 line-clamp-2 mb-4">
+                <p className="mb-4 line-clamp-2 text-xs text-gray-500 sm:text-sm">
                     {project.description || 'No description provided.'}
                 </p>
             </div>
 
-            <div className="pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-                <span>{project.category || 'General'}</span>
+            <div className="flex items-center justify-between gap-2 border-t border-gray-100 pt-3 text-xs text-gray-500">
+                <span className="truncate">{project.category || 'General'}</span>
 
-                <div className="flex items-center gap-3">
-                    {
-                        canEdit && (
-                            <button
-                                onClick={() => onEdit(project)}
-                                className="text-gray-600 hover:text-blue-600 font-medium cursor-pointer"
-                            >
-                                Edit
-                            </button>
-                        )
-                    }
-                    {
-                        canDelete && (
-                            <button
-                                onClick={() => onDelete(project)}
-                                className="text-red-500 hover:text-red-700 font-medium cursor-pointer"
-                            >
-                                Delete
-                            </button>
-                        )
-                    }
+                <div className="flex shrink-0 items-center gap-3">
+                    {canEdit && (
+                        <button
+                            onClick={() => onEdit(project)}
+                            className="cursor-pointer py-1 font-medium text-gray-600 hover:text-blue-600"
+                        >
+                            Edit
+                        </button>
+                    )}
+                    {canDelete && (
+                        <button
+                            onClick={() => onDelete(project)}
+                            className="cursor-pointer py-1 font-medium text-red-500 hover:text-red-700"
+                        >
+                            Delete
+                        </button>
+                    )}
                 </div>
             </div>
         </div>

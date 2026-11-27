@@ -86,7 +86,7 @@ export default function Navbar({ onMenuClick }) {
       </div>
 
       {/* Center: Command Search Bar */}
-      <div className="relative hidden max-w-md flex-1 sm:block">
+      {/* <div className="relative hidden max-w-md flex-1 sm:block">
         <Search
           size={15}
           className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -100,7 +100,7 @@ export default function Navbar({ onMenuClick }) {
         <kbd className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 hidden md:inline-flex items-center gap-0.5 rounded border border-gray-200 bg-white px-1.5 py-0.5 text-[10px] font-medium text-gray-400 shadow-2xs">
           ⌘K
         </kbd>
-      </div>
+      </div> */}
 
       {/* Right: Notifications & Profile */}
       <div className="flex items-center gap-2.5">
@@ -159,7 +159,7 @@ export default function Navbar({ onMenuClick }) {
                 </div>
               </div>
 
-              <div className="p-1.5 space-y-0.5">
+              {/* <div className="p-1.5 space-y-0.5">
                 <Link
                   to="/home"
                   onClick={() => setDropdownOpen(false)}
@@ -169,7 +169,7 @@ export default function Navbar({ onMenuClick }) {
                   My Workspaces
                 </Link>
                 
-              </div>
+              </div> */}
 
               <div className="border-t border-gray-100 p-1.5">
                 <button

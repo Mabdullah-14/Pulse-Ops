@@ -5,6 +5,7 @@ const priorityStyles = {
   MEDIUM: 'bg-blue-50 text-blue-700 border-blue-200',
   HIGH: 'bg-amber-50 text-amber-700 border-amber-200',
   URGENT: 'bg-red-50 text-red-700 border-red-200',
+  CRITICAL: 'bg-red-50 text-red-700 border-red-200',
 };
 
 export const IssuePriorityBadge = ({ priority = 'MEDIUM' }) => {
@@ -12,7 +13,9 @@ export const IssuePriorityBadge = ({ priority = 'MEDIUM' }) => {
   const style = priorityStyles[key] || priorityStyles.MEDIUM;
 
   return (
-    <span className={`px-2 py-0.5 text-[10px] font-semibold uppercase rounded border ${style}`}>
+    <span
+      className={`inline-flex shrink-0 whitespace-nowrap rounded border px-2 py-0.5 text-[10px] font-semibold uppercase ${style}`}
+    >
       {key}
     </span>
   );

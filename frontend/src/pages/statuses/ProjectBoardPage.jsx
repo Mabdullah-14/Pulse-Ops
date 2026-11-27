@@ -1,24 +1,32 @@
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useGetProjectById } from '../../hooks/queries/projects/useGetProjectsById';
-import { useGetStatuses } from '../../hooks/queries/statuses/useGetStatuses';
-import { useGetIssues } from '../../hooks/queries/issues/useGetIssues';
-import { StatusBoardHeader } from '../../components/statuses/StatusBoardHeader';
-import { StatusColumnList } from '../../components/statuses/StatusColumnList';
-import { StatusEmptyState } from '../../components/statuses/StatusEmptyStatus';
-import { CreateStatusModal } from '../../components/statuses/CreateStatusModal';
-import { EditStatusModal } from '../../components/statuses/EditStatusModal';
-import { DeleteStatusModal } from '../../components/statuses/DeleteStatusModal';
-import { CreateIssueModal } from '../../components/issues/CreateIssueModal';
-import { EditIssueModal } from '../../components/issues/EditIssueModal';
-import { DeleteIssueModal } from '../../components/issues/DeleteIssueModal';
+import React, { useState } from "react";
+import { Search } from "lucide-react";
+import { useParams } from "react-router-dom";
+import { useGetProjectById } from "../../hooks/queries/projects/useGetProjectsById";
+import { useGetStatuses } from "../../hooks/queries/statuses/useGetStatuses";
+import { useGetIssues } from "../../hooks/queries/issues/useGetIssues";
+import { useMoveIssue } from "../../hooks/mutations/issues/useMoveIssue";
+import { useOrgSocket } from "../../hooks/useOrgSocket";
+import { useDebounce } from "../../hooks/useDebounce";
+import { StatusBoardHeader } from "../../components/statuses/StatusBoardHeader";
+import { StatusColumnList } from "../../components/statuses/StatusColumnList";
+import { StatusEmptyState } from "../../components/statuses/StatusEmptyStatus";
+import { CreateStatusModal } from "../../components/statuses/CreateStatusModal";
+import { EditStatusModal } from "../../components/statuses/EditStatusModal";
+import { DeleteStatusModal } from "../../components/statuses/DeleteStatusModal";
+import { CreateIssueModal } from "../../components/issues/CreateIssueModal";
+import { EditIssueModal } from "../../components/issues/EditIssueModal";
+import { DeleteIssueModal } from "../../components/issues/DeleteIssueModal";
 
 export const ProjectBoardPage = () => {
     const { orgSlug, projectId } = useParams();
 
-    const { data: projectRes, isLoading: isProjectLoading } = useGetProjectById({ orgSlug, projectId });
-    const { data: statusRes, isLoading: isStatusLoading, isError } = useGetStatuses({ orgSlug, projectId });
-    const { data: issuesRes, fetchNextPage, hasNextPage, isFetchingNextPage, } = useGetIssues({ orgSlug, projectId });
+    // Filter States
+    const [search, setSearch] = useState("");
+    const [statusId, setStatusId] = useState("");
+    const [priority, setPriority] = useState("");
+    const [assigneeId, setAssigneeId] = useState("");
+
+    const debouncedSearch = useDebounce(search, 400);
 
     // Status Modals States
     const [isCreateStatusOpen, setIsCreateStatusOpen] = useState(false);
@@ -30,20 +38,62 @@ export const ProjectBoardPage = () => {
     const [editingIssue, setEditingIssue] = useState(null);
     const [deletingIssue, setDeletingIssue] = useState(null);
 
+    // Queries
+    const { data: projectRes, isLoading: isProjectLoading } = useGetProjectById({
+        orgSlug,
+        projectId,
+    });
+
+    const {
+        data: statusRes,
+        isLoading: isStatusLoading,
+        isError,
+    } = useGetStatuses({ orgSlug, projectId });
+
+    const {
+        data: issuesRes,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+    } = useGetIssues({
+        orgSlug,
+        projectId,
+        filters: {
+            statusId,
+            priority,
+            assigneeId,
+            search: debouncedSearch,
+        },
+    });
+
+    const { mutate: moveIssue } = useMoveIssue({ orgSlug, projectId });
+
     const project = projectRes?.project || projectRes?.data || projectRes;
-    const statuses = Array.isArray(statusRes) ? statusRes : statusRes?.statuses || statusRes?.data || [];
+    const statuses = Array.isArray(statusRes)
+        ? statusRes
+        : statusRes?.statuses || statusRes?.data || [];
     const issues = issuesRes?.pages?.flatMap((page) => page?.data || []) || [];
+    useOrgSocket(project?.organizationId || project?.orgId);
+
 
     if (isProjectLoading || isStatusLoading) {
-        return <div className="p-8 text-center text-gray-500">Loading board...</div>;
+        return (
+            <div className="px-4 py-8 text-center text-sm text-gray-500 sm:p-8">
+                Loading board...
+            </div>
+        );
     }
 
     if (isError) {
-        return <div className="p-8 text-center text-red-500">Failed to load project board.</div>;
+        return (
+            <div className="px-4 py-8 text-center text-sm text-red-500 sm:p-8">
+                Failed to load project board.
+            </div>
+        );
     }
 
     return (
-        <div className="max-w-full">
+        <div className="min-w-0 max-w-full px-3 py-4 sm:px-6 sm:py-6">
             <StatusBoardHeader
                 project={project}
                 orgSlug={orgSlug}
@@ -51,34 +101,52 @@ export const ProjectBoardPage = () => {
             />
 
             {statuses.length === 0 ? (
-                <StatusEmptyState
-                    onOpenCreate={() => setIsCreateStatusOpen(true)}
-                />
+                <StatusEmptyState onOpenCreate={() => setIsCreateStatusOpen(true)} />
             ) : (
-                <>
-                    <StatusColumnList
-                        statuses={statuses}
-                        issues={issues}
-                        projectKey={project?.key}
-                        onEditStatus={(status) => setEditingStatus(status)}
-                        onDeleteStatus={(status) => setDeletingStatus(status)}
-                        onOpenCreateIssue={(statusId) => setCreateIssueStatusId(statusId)}
-                        onEditIssue={(issue) => setEditingIssue(issue)}
-                        onDeleteIssue={(issue) => setDeletingIssue(issue)}
-                    />
+                <div className="min-w-0">
+                    {/* Filter Bar */}
+                    <div className="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="relative w-full sm:w-80">
+                            <Search
+                                size={15}
+                                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                            />
+                            <input
+                                type="search"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                placeholder="Search issues..."
+                                className="w-full rounded-lg border border-gray-200/80 bg-gray-50/80 py-2 pl-9 pr-3 text-sm text-gray-800 outline-none placeholder:text-gray-400 transition-all hover:border-gray-300 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 sm:py-1.5"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="min-w-0 overflow-x-auto pb-2">
+                        <StatusColumnList
+                            statuses={statuses}
+                            issues={issues}
+                            onMoveIssue={moveIssue}
+                            projectKey={project?.key}
+                            onEditStatus={(status) => setEditingStatus(status)}
+                            onDeleteStatus={(status) => setDeletingStatus(status)}
+                            onOpenCreateIssue={(statusId) => setCreateIssueStatusId(statusId)}
+                            onEditIssue={(issue) => setEditingIssue(issue)}
+                            onDeleteIssue={(issue) => setDeletingIssue(issue)}
+                        />
+                    </div>
 
                     {hasNextPage && (
                         <div className="mt-4 flex justify-center">
                             <button
                                 onClick={() => fetchNextPage()}
                                 disabled={isFetchingNextPage}
-                                className="rounded-lg border border-gray-300 bg-white px-5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 cursor-pointer"
+                                className="w-full rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 cursor-pointer sm:w-auto sm:py-2"
                             >
-                                {isFetchingNextPage ? 'Loading more...' : 'Load More Issues'}
+                                {isFetchingNextPage ? "Loading more..." : "Load More Issues"}
                             </button>
                         </div>
                     )}
-                </>
+                </div>
             )}
 
             {/* Status Modals */}

@@ -19,33 +19,49 @@ export const ProjectsPage = () => {
 
     const projects = Array.isArray(data) ? data : data?.data || [];
 
+    const normalizedQuery = searchQuery.trim().toLowerCase();
     const filteredProjects = projects.filter(
         (p) =>
-            p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            p.key.toLowerCase().includes(searchQuery.toLowerCase())
+            p.name?.toLowerCase().includes(normalizedQuery) ||
+            p.key?.toLowerCase().includes(normalizedQuery)
     );
 
-    if (isLoading) return <div className="p-8 text-center text-gray-500">Loading projects...</div>;
-    if (isError) return <div className="p-8 text-center text-red-500">Failed to load projects.</div>;
+    if (isLoading) {
+        return (
+            <div className="px-4 py-8 text-center text-sm text-gray-500 sm:p-8">
+                Loading projects...
+            </div>
+        );
+    }
+
+    if (isError) {
+        return (
+            <div className="px-4 py-8 text-center text-sm text-red-500 sm:p-8">
+                Failed to load projects.
+            </div>
+        );
+    }
 
     return (
-        <div className="p-6 max-w-7xl mx-auto">
+        <div className="mx-auto min-w-0 max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
             <ProjectHeader
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
                 onOpenCreate={() => setIsCreateOpen(true)}
             />
 
-            {filteredProjects.length === 0 ? (
-                <ProjectEmptyState onOpenCreate={() => setIsCreateOpen(true)} />
-            ) : (
-                <ProjectList
-                    projects={filteredProjects}
-                    orgSlug={orgSlug}
-                    onEdit={(project) => setEditingProject(project)}
-                    onDelete={(project) => setDeletingProject(project)}
-                />
-            )}
+            <div className="mt-4 min-w-0 sm:mt-6">
+                {filteredProjects.length === 0 ? (
+                    <ProjectEmptyState onOpenCreate={() => setIsCreateOpen(true)} />
+                ) : (
+                    <ProjectList
+                        projects={filteredProjects}
+                        orgSlug={orgSlug}
+                        onEdit={(project) => setEditingProject(project)}
+                        onDelete={(project) => setDeletingProject(project)}
+                    />
+                )}
+            </div>
 
             <CreateProjectModal
                 isOpen={isCreateOpen}

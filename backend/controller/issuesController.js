@@ -90,41 +90,48 @@ const getIssueById = async (req, res) => {
     }
 };
 
-const updateIssue = async (req, res) => {
-    try {
-        const organizationId = req.tenant.orgId;
-        const userId = req.user.id;
-        const { projectId, issueId } = req.params;
-        const { version, ...updateData } = req.body;
+    const updateIssue = async (req, res) => {
+        try {
+            const organizationId = req.tenant.orgId;
+            const userId = req.user.id;
+            const { projectId, issueId } = req.params;
+            const { version, ...updateData } = req.body;
 
-        const updated = await issueService.updateIssue(
-            organizationId,
-            userId,
-            projectId,
-            issueId,
-            version,
-            updateData
-        );
+            if(version=== undefined || version ===null){
+                return res.status(400).json({
+                    success:false,
+                    message:'Issue version required for updates'
+                })
+            }
 
-        return res.status(200).json({
-            success: true,
-            data: updated,
-        });
-    } catch (err) {
-        console.error('UPDATE ISSUE ERROR:', err);
-        if (err.statusCode === 409) {
-            return res.status(409).json({
+            const updated = await issueService.updateIssue(
+                organizationId,
+                userId,
+                projectId,
+                issueId,
+                version,
+                updateData
+            );
+
+            return res.status(200).json({
+                success: true,
+                data: updated,
+            });
+        } catch (err) {
+            console.error('UPDATE ISSUE ERROR:', err);
+            if (err.statusCode === 409) {
+                return res.status(409).json({
+                    success: false,
+                    message: err.message,
+                    latestVersion: err.latestVersion,
+                });
+            }
+            return res.status(err.statusCode || 500).json({
                 success: false,
-                message: err.message,
-                latestVersion: err.latestVersion,
+                message: err.message || 'Internal server error',
             });
         }
-        return res.status(err.statusCode || 500).json({
-            success: false,
-            message: err.message || 'Internal server error',
-        });
-    }
-};
+    };
 
 const deleteIssue = async (req, res) => {
     try {

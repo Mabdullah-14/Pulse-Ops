@@ -1,9 +1,18 @@
 const { db } = require('../config/db');
+const { getIo } = require('../config/socket');
 const issueRepo = require('../repositories/issuesRepo');
 const projectRepo = require('../repositories/projectsrepo');
 const statusRepo = require('../repositories/statusRepo');
 const { logActivity } = require('./auditLogsServices');
 const { AUDIT_ACTIONS, ENTITY_TYPES } = require('../constants/auditAction');
+
+const emitToOrg = (organizationId, eventName, payload) => {
+  try {
+    getIo().to(`org:${organizationId}`).emit(eventName, payload);
+  } catch (error) {
+    console.warn('Socket emit skipped:', error.message); // Fixed: error instead of err
+  }
+};
 
 const validateProjectAndStatus = async (organizationId, projectId, statusId = null) => {
   const project = await projectRepo.getProjectById(organizationId, projectId);
@@ -28,14 +37,15 @@ const validateProjectAndStatus = async (organizationId, projectId, statusId = nu
 const createIssue = async (organizationId, userId, projectId, data) => {
   await validateProjectAndStatus(organizationId, projectId, data.statusId);
 
-  return await db.transaction(async (tx) => {
+  // Store result in variable instead of returning immediately
+  const newIssue = await db.transaction(async (tx) => {
     const lastIssue = await issueRepo.getLastIssueInProject(projectId, tx);
     const nextIssueNumber = lastIssue ? lastIssue.issueNumber + 1 : 1;
 
     const existingInStatus = await issueRepo.getIssuesByStatus(data.statusId);
     const nextPosition = existingInStatus.length;
 
-    const newIssue = await issueRepo.createIssue(
+    const created = await issueRepo.createIssue(
       {
         projectId,
         statusId: data.statusId,
@@ -55,18 +65,27 @@ const createIssue = async (organizationId, userId, projectId, data) => {
         userId,
         action: AUDIT_ACTIONS.ISSUE_CREATED,
         entityType: ENTITY_TYPES.ISSUE,
-        entityId: newIssue.id,
+        entityId: created.id,
         metadata: {
-          title: newIssue.title,
-          issueNumber: newIssue.issueNumber,
+          title: created.title,
+          issueNumber: created.issueNumber,
           projectId,
         },
       },
       tx
     );
 
-    return newIssue;
+    return created;
   });
+
+  // Now runs AFTER the database transaction commits
+  emitToOrg(organizationId, 'ISSUE_CREATED', {
+    issue: newIssue,
+    actorId: userId,
+    message: `New issue #${newIssue.issueNumber} "${newIssue.title}" created`,
+  });
+
+  return newIssue;
 };
 
 // 2. Get All Issues of a Project
@@ -111,8 +130,11 @@ const updateIssue = async (organizationId, userId, projectId, issueId, clientVer
     throw err;
   }
 
-  return await db.transaction(async (tx) => {
-    const updated = await issueRepo.updateIssueWithVersion(
+  // Define whether the status column changed
+  const isMoved = Boolean(data.statusId && data.statusId !== existingIssue.statusId);
+
+  const updated = await db.transaction(async (tx) => {
+    const updatedIssue = await issueRepo.updateIssueWithVersion(
       projectId,
       issueId,
       clientVersion,
@@ -120,7 +142,7 @@ const updateIssue = async (organizationId, userId, projectId, issueId, clientVer
       tx
     );
 
-    if (!updated) {
+    if (!updatedIssue) {
       const err = new Error('Conflict: This issue was modified by another user. Please refresh.');
       err.statusCode = 409;
       err.latestVersion = existingIssue.version;
@@ -133,17 +155,28 @@ const updateIssue = async (organizationId, userId, projectId, issueId, clientVer
         userId,
         action: AUDIT_ACTIONS.ISSUE_UPDATED,
         entityType: ENTITY_TYPES.ISSUE,
-        entityId: updated.id,
+        entityId: updatedIssue.id,
         metadata: {
-          issueNumber: updated.issueNumber,
+          issueNumber: updatedIssue.issueNumber,
           updatedFields: data,
         },
       },
       tx
     );
 
-    return updated;
+    return updatedIssue;
   });
+
+  const eventName = isMoved ? 'ISSUE_MOVED' : 'ISSUE_UPDATED';
+  emitToOrg(organizationId, eventName, {
+    issue: updated,
+    actorId: userId,
+    message: isMoved
+      ? `Issue #${updated.issueNumber} "${updated.title}" moved to another column`
+      : `Issue #${updated.issueNumber} "${updated.title}" updated`,
+  });
+
+  return updated;
 };
 
 // 5. Delete Issue
@@ -157,8 +190,8 @@ const deleteIssue = async (organizationId, userId, projectId, issueId) => {
     throw err;
   }
 
-  return await db.transaction(async (tx) => {
-    const deleted = await issueRepo.softDeleteIssue(projectId, issueId, tx);
+  const deleted = await db.transaction(async (tx) => {
+    const deletedIssue = await issueRepo.softDeleteIssue(projectId, issueId, tx);
 
     await logActivity(
       {
@@ -176,8 +209,16 @@ const deleteIssue = async (organizationId, userId, projectId, issueId) => {
       tx
     );
 
-    return deleted;
+    return deletedIssue;
   });
+
+  emitToOrg(organizationId, 'ISSUE_DELETED', {
+    issueId,
+    actorId: userId,
+    message: `Issue #${existingIssue.issueNumber} "${existingIssue.title}" deleted`,
+  });
+
+  return deleted;
 };
 
 module.exports = {

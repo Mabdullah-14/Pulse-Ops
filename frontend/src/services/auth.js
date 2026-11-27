@@ -3,7 +3,10 @@ import { API, setAccessToken, getAccessToken, refreshAccessToken } from './api';
 export const handleApiError = (error) => {
   const message =
     error?.response?.data?.message || error.message || 'Something went wrong';
-  throw new Error(message);
+     
+    const customError=new Error(message)
+    customError.status=error?.response?.status
+    throw customError
 };
 
 export const register = async (data) => {

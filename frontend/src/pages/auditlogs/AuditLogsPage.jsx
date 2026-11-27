@@ -24,7 +24,6 @@ export const AuditLogsPage = () => {
     } = useGetAuditLogs({
         orgSlug,
         enabled: canViewAuditLogs,
-        
     });
 
     if (!canViewAuditLogs) {
@@ -46,21 +45,53 @@ export const AuditLogsPage = () => {
     }
 
     return (
-        <div className="max-w-6xl mx-auto">
+        <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
             <AuditLogsHeader />
 
             {logs.length === 0 ? (
                 <AuditLogsEmptyState />
             ) : (
                 <>
-                    <AuditLogsTable logs={logs} />
+                    {/* Mobile Cards */}
+                    <div className="space-y-3 md:hidden">
+                        {logs.map((log) => (
+                            <div
+                                key={log.id}
+                                className="rounded-xl border border-gray-200 bg-white p-4 shadow-2xs space-y-2"
+                            >
+                                <div className="flex items-center justify-between gap-2">
+                                    <span className="text-sm font-semibold text-gray-900">
+                                        {log.action}
+                                    </span>
+                                    <span className="text-xs text-gray-400">
+                                        {new Date(log.createdAt).toLocaleDateString()}
+                                    </span>
+                                </div>
+
+                                <p className="text-xs text-gray-600">
+                                    By: <span className="font-medium text-gray-800">{log.actor?.name || log.actor?.email || 'System'}</span>
+                                </p>
+
+                                {log.target && (
+                                    <p className="text-xs text-gray-500">
+                                        Target: <span className="text-gray-700">{log.target}</span>
+                                    </p>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Desktop Table */}
+                    <div className="hidden md:block">
+                        <AuditLogsTable logs={logs} />
+                    </div>
 
                     {hasNextPage && (
                         <div className="mt-6 flex justify-center">
                             <button
                                 onClick={() => fetchNextPage()}
                                 disabled={isFetchingNextPage}
-                                className="rounded-lg border border-gray-300 bg-white px-5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 cursor-pointer"
+                                className="w-full rounded-lg border border-gray-300 bg-white px-5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 cursor-pointer sm:w-auto"
                             >
                                 {isFetchingNextPage ? 'Loading more...' : 'Load More Logs'}
                             </button>

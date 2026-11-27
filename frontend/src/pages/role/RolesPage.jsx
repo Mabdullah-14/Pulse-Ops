@@ -16,25 +16,37 @@ export const RolesPage = () => {
     const [editingRole, setEditingRole] = useState(null);
     const [deletingRole, setDeletingRole] = useState(null);
 
-    const roles = Array.isArray(rolesRes) ? rolesRes : rolesRes?.roles || rolesRes?.data || [];
+    const roles = Array.isArray(rolesRes)
+        ? rolesRes
+        : rolesRes?.roles || rolesRes?.data || [];
 
     if (isLoading) {
-        return <div className="p-8 text-center text-gray-500">Loading roles...</div>;
+        return (
+            <div className="px-4 py-8 text-center text-sm text-gray-500 sm:p-8">
+                Loading roles...
+            </div>
+        );
     }
 
     if (isError) {
-        return <div className="p-8 text-center text-red-500">Failed to load roles.</div>;
+        return (
+            <div className="px-4 py-8 text-center text-sm text-red-500 sm:p-8">
+                Failed to load roles.
+            </div>
+        );
     }
 
     return (
-        <div className="max-w-6xl mx-auto">
+        <div className="mx-auto min-w-0 max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
             <RoleHeader onOpenCreate={() => setIsCreateOpen(true)} />
 
-            <RoleList
-                roles={roles}
-                onEdit={(role) => setEditingRole(role)}
-                onDelete={(role) => setDeletingRole(role)}
-            />
+            <div className="mt-4 min-w-0 sm:mt-6">
+                <RoleList
+                    roles={roles}
+                    onEdit={(role) => setEditingRole(role)}
+                    onDelete={(role) => setDeletingRole(role)}
+                />
+            </div>
 
             <CreateRoleModal
                 isOpen={isCreateOpen}

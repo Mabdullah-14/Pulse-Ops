@@ -11,29 +11,29 @@ export const RoleCard = ({ role, onEdit, onDelete }) => {
     const canDelete = hasPermission(PERMISSIONS.ROLE_DELETE);
 
     return (
-        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-            <div>
+        <div className="flex min-w-0 flex-col justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md sm:p-5">
+            <div className="min-w-0">
                 {/* Top Row: Role Name + System Badge */}
-                <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                        <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600">
+                <div className="mb-3 flex items-start justify-between gap-2">
+                    <div className="flex min-w-0 items-center gap-2">
+                        <div className="shrink-0 rounded-lg bg-blue-50 p-1.5 text-blue-600">
                             <Shield size={16} />
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-900 capitalize">
+                        <h3 className="break-words text-base font-semibold capitalize text-gray-900 sm:text-lg">
                             {role.name}
                         </h3>
                     </div>
 
                     {role.isSystem && (
-                        <span className="px-2.5 py-0.5 text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 rounded-full">
+                        <span className="shrink-0 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
                             System
                         </span>
                     )}
                 </div>
 
                 {/* Permissions Badges */}
-                <div className="mt-3 mb-4">
-                    <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">
+                <div className="mb-4 mt-3 min-w-0">
+                    <p className="mb-2 text-xs font-medium uppercase tracking-wider text-gray-400">
                         Permissions ({role.permissions?.length || 0})
                     </p>
                     <PermissionBadges permissions={role.permissions} limit={6} />
@@ -42,11 +42,11 @@ export const RoleCard = ({ role, onEdit, onDelete }) => {
 
             {/* Footer Actions (Hide for system 'owner' role) */}
             {!role.isSystem && (canEdit || canDelete) && (
-                <div className="pt-3 border-t border-gray-100 flex items-center justify-end gap-3 text-xs">
+                <div className="flex items-center justify-end gap-3 border-t border-gray-100 pt-3 text-xs">
                     {canEdit && (
                         <button
                             onClick={() => onEdit(role)}
-                            className="inline-flex items-center gap-1 text-gray-600 hover:text-blue-600 font-medium cursor-pointer"
+                            className="inline-flex cursor-pointer items-center gap-1 py-1 font-medium text-gray-600 hover:text-blue-600"
                         >
                             <Pencil size={13} />
                             Edit
@@ -55,7 +55,7 @@ export const RoleCard = ({ role, onEdit, onDelete }) => {
                     {canDelete && (
                         <button
                             onClick={() => onDelete(role)}
-                            className="inline-flex items-center gap-1 text-red-500 hover:text-red-700 font-medium cursor-pointer"
+                            className="inline-flex cursor-pointer items-center gap-1 py-1 font-medium text-red-500 hover:text-red-700"
                         >
                             <Trash2 size={13} />
                             Delete

@@ -21,7 +21,6 @@ const TeamMember = () => {
 
   const members = data?.data || [];
 
-  // PBAC Permission Checks
   const canAddMember = hasPermission(PERMISSIONS.MEMBER_ADD);
   const canUpdateRole = hasPermission(PERMISSIONS.MEMBER_UPDATE_ROLE);
 
@@ -30,7 +29,6 @@ const TeamMember = () => {
     setTimeout(() => setToastMessage(''), 3000);
   };
 
-  // Ab role string ke bajaye dynamic 'roleId' (UUID) bhejenge
   const handleRoleChange = (targetUserId, newRoleId) => {
     changeRole(
       { orgSlug, userId: targetUserId, roleId: newRoleId },
@@ -42,19 +40,20 @@ const TeamMember = () => {
   };
 
   return (
-    <div className="mx-auto max-w-5xl">
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Team Members</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Manage members and their access roles in <span className="font-semibold">{membership?.orgName}</span>.
+    <div className="mx-auto w-full max-w-5xl min-w-0">
+      <div className="mb-5 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <div className="min-w-0">
+          <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">Team Members</h1>
+          <p className="mt-1 text-xs text-gray-500 sm:text-sm">
+            Manage members and their access roles in{' '}
+            <span className="font-semibold text-gray-700">{membership?.orgName}</span>.
           </p>
         </div>
 
         {canAddMember && (
           <button
             onClick={() => setIsModalOpen(true)}
-            className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 cursor-pointer"
+            className="w-full shrink-0 cursor-pointer rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 sm:w-auto"
           >
             + Add Member
           </button>
@@ -62,14 +61,17 @@ const TeamMember = () => {
       </div>
 
       {toastMessage && (
-        <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
+        <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 text-xs text-green-700 sm:text-sm">
           {toastMessage}
         </div>
       )}
 
-      {isLoading && <div className="py-10 text-center text-gray-500">Loading team members...</div>}
+      {isLoading && (
+        <div className="py-10 text-center text-sm text-gray-500">Loading team members...</div>
+      )}
+
       {isError && (
-        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600">
+        <div className="rounded-lg bg-red-50 p-4 text-xs text-red-600 sm:text-sm">
           {error?.message || 'Failed to load members'}
         </div>
       )}
