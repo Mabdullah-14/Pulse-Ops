@@ -7,7 +7,7 @@ import { ProjectEmptyState } from '../../components/projects/ProjectEmptyState';
 import { CreateProjectModal } from '../../components/projects/CreateProjectModal';
 import { EditProjectModal } from '../../components/projects/EditProjectModal';
 import { DeleteProjectModal } from '../../components/projects/DeleteProjectModal';
-
+import { ProjectsPageSkeleton } from '../../components/skeletons/ProjectPageSkeleton'
 export const ProjectsPage = () => {
     const { orgSlug } = useParams();
     const { data, isLoading, isError } = useGetProjects({ orgSlug });
@@ -26,13 +26,7 @@ export const ProjectsPage = () => {
             p.key?.toLowerCase().includes(normalizedQuery)
     );
 
-    if (isLoading) {
-        return (
-            <div className="px-4 py-8 text-center text-sm text-gray-500 sm:p-8">
-                Loading projects...
-            </div>
-        );
-    }
+
 
     if (isError) {
         return (
@@ -49,6 +43,8 @@ export const ProjectsPage = () => {
                 setSearchQuery={setSearchQuery}
                 onOpenCreate={() => setIsCreateOpen(true)}
             />
+
+            {isLoading && <ProjectsPageSkeleton />}
 
             <div className="mt-4 min-w-0 sm:mt-6">
                 {filteredProjects.length === 0 ? (

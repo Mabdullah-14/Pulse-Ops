@@ -6,7 +6,7 @@ import { RoleList } from '../../components/roles/RoleList';
 import { CreateRoleModal } from '../../components/roles/CreateRoleModal';
 import { EditRoleModal } from '../../components/roles/EditRoleModal';
 import { DeleteRoleModal } from '../../components/roles/DeleteRoleModal';
-
+import {RolesPageSkeleton} from '../../components/skeletons/RolePageSkeleton'
 export const RolesPage = () => {
     const { orgSlug } = useParams();
 
@@ -20,13 +20,6 @@ export const RolesPage = () => {
         ? rolesRes
         : rolesRes?.roles || rolesRes?.data || [];
 
-    if (isLoading) {
-        return (
-            <div className="px-4 py-8 text-center text-sm text-gray-500 sm:p-8">
-                Loading roles...
-            </div>
-        );
-    }
 
     if (isError) {
         return (
@@ -39,7 +32,7 @@ export const RolesPage = () => {
     return (
         <div className="mx-auto min-w-0 max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
             <RoleHeader onOpenCreate={() => setIsCreateOpen(true)} />
-
+              {isLoading && RolesPageSkeleton}
             <div className="mt-4 min-w-0 sm:mt-6">
                 <RoleList
                     roles={roles}

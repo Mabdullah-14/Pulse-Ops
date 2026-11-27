@@ -6,6 +6,7 @@ import { useGetAuditLogs } from '../../hooks/queries/auditlogs/useGetAuditLogs';
 import { AuditLogsHeader } from '../../components/auditLogs/AuditLogsHeader';
 import { AuditLogsTable } from '../../components/auditLogs/AuditLogsTable';
 import { AuditLogsEmptyState } from '../../components/auditLogs/AuditLogsEmptyState';
+import {AuditLogsSkeleton} from '../../components/skeletons/AuditLogsSkeleton'
 
 export const AuditLogsPage = () => {
     const { orgSlug } = useParams();
@@ -32,9 +33,7 @@ export const AuditLogsPage = () => {
 
     const logs = data?.pages?.flatMap((page) => page?.data || []) || [];
 
-    if (isLoading) {
-        return <div className="p-8 text-center text-gray-500">Loading audit logs...</div>;
-    }
+    
 
     if (isError) {
         return (
@@ -47,6 +46,7 @@ export const AuditLogsPage = () => {
     return (
         <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
             <AuditLogsHeader />
+            {isLoading && <AuditLogsSkeleton />}
 
             {logs.length === 0 ? (
                 <AuditLogsEmptyState />

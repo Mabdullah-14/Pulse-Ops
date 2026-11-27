@@ -16,7 +16,7 @@ import { DeleteStatusModal } from "../../components/statuses/DeleteStatusModal";
 import { CreateIssueModal } from "../../components/issues/CreateIssueModal";
 import { EditIssueModal } from "../../components/issues/EditIssueModal";
 import { DeleteIssueModal } from "../../components/issues/DeleteIssueModal";
-
+import {ProjectBoardSkeleton} from '../../components/skeletons/ProjectBoardSkeleton'
 export const ProjectBoardPage = () => {
     const { orgSlug, projectId } = useParams();
 
@@ -76,13 +76,7 @@ export const ProjectBoardPage = () => {
     useOrgSocket(project?.organizationId || project?.orgId);
 
 
-    if (isProjectLoading || isStatusLoading) {
-        return (
-            <div className="px-4 py-8 text-center text-sm text-gray-500 sm:p-8">
-                Loading board...
-            </div>
-        );
-    }
+    
 
     if (isError) {
         return (
@@ -99,6 +93,7 @@ export const ProjectBoardPage = () => {
                 orgSlug={orgSlug}
                 onOpenCreateStatus={() => setIsCreateStatusOpen(true)}
             />
+            {isProjectLoading && <ProjectBoardSkeleton/>}
 
             {statuses.length === 0 ? (
                 <StatusEmptyState onOpenCreate={() => setIsCreateStatusOpen(true)} />

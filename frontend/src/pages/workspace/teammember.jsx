@@ -7,7 +7,7 @@ import { useChangeRole } from '../../hooks/mutations/organization/useChangeRole'
 import { useOrganizationMembers } from '../../hooks/queries/orgMembers/useOrganizationMembers';
 import AddMemberModal from '../../components/workspace/AddMemberModal';
 import MembersTable from '../../components/workspace/MemberTable';
-
+import { MembersTableSkeleton } from '../../components/skeletons/MemberTableSkeleton'
 const TeamMember = () => {
   const { orgSlug } = useParams();
   const { user: currentUser } = useAuth();
@@ -66,9 +66,7 @@ const TeamMember = () => {
         </div>
       )}
 
-      {isLoading && (
-        <div className="py-10 text-center text-sm text-gray-500">Loading team members...</div>
-      )}
+      {isLoading && <MembersTableSkeleton />}
 
       {isError && (
         <div className="rounded-lg bg-red-50 p-4 text-xs text-red-600 sm:text-sm">

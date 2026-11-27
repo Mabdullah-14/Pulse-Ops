@@ -3,7 +3,7 @@ import { Outlet, useParams, NavLink, Link, Navigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { useVerifyMembership } from '../../hooks/queries/orgMembers/userUserVerifyMember';
 import { PERMISSIONS } from '../../constants/Permisson';
-
+import { WorkspaceLayoutSkeleton } from '../../components/skeletons/WorkSpaceLayout'
 const WorkspaceLayout = () => {
     const { orgSlug } = useParams();
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -14,11 +14,7 @@ const WorkspaceLayout = () => {
     }, [orgSlug]);
 
     if (isLoading) {
-        return (
-            <div className="flex min-h-screen items-center justify-center px-4 text-sm text-gray-500">
-                Loading workspace...
-            </div>
-        );
+        return <WorkspaceLayoutSkeleton />;
     }
 
     if (isError || !data?.success) {
